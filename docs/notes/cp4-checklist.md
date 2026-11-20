@@ -13,7 +13,7 @@
 - [ ] Commit (duyệt thông điệp) → push → CI xanh → tag `phase-4`
 - [ ] `npm run package` rồi tạo Release `v1.0.0` đính kèm zip (và video nếu < 100 MB)
 - [x] Video demo 4:15 (.mp4) đính kèm Release v1.0.0, link ở đầu README (283 MB, vượt giới hạn 100 MB của repo nên không commit)
-- [ ] Điền bảng `/usage` trong ai-log.md; viết số/nhận xét cá nhân trong retro.md
+- [x] Token/chi phí: ghi rõ là không có số đo (gói Pro dùng chung nhiều việc, không có phép đo thay thế phù hợp) ở ai-log.md và retro.md
 - [ ] Clone thật repo công khai, chạy 3 lệnh trong README
 
 ## Hạn chế trung thực

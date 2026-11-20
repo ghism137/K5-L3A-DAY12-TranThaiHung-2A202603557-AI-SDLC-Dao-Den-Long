@@ -40,7 +40,7 @@ Quy ước: **[B]** bắt buộc theo ticket, **[G]** giả định của tôi, 
 | G20 | Đóng gói Release | `v1.0.0` đính kèm **zip web tĩnh + máy chủ Node** (đã gom `three`, kèm `start.bat`/`start.sh`) và hướng dẫn Docker; không đính kèm image Docker | Release |
 | G21 | README | Có ảnh chụp (PNG trong `docs/screenshots`), yêu cầu hệ thống, cài đặt (≤ 3 lệnh), điều khiển, test, headless, bench, soak, bảng xếp hạng, đổi phím | rà soát |
 | G22 | Video | **Người dùng quay** (Game Bar Win+Alt+R → `.mp4`, < 5 phút), tôi gửi kịch bản; đặt `docs/demo/demo.mp4` hoặc đính kèm Release | người dùng |
-| G23 | Retro | Tôi soạn `docs/notes/retro.md` (1–2 trang) từ các cpN, ai-log, đột biến; phần token/chi phí để người dùng điền (gói Pro, không có số tiền) | rà soát |
+| G23 | Retro | Tôi soạn `docs/notes/retro.md` (1–2 trang) từ các cpN, ai-log, đột biến; phần token/chi phí ghi rõ là không có số đo (gói Pro dùng chung nhiều việc, không có phép đo thay thế phù hợp) | rà soát |
 | G24 | Hồi quy | Cờ `bench` mặc định `false`; không có đường nào bật nó từ CLI headless; toàn bộ test Phase 1–3 chạy không sửa | `npm test`, `npm run mutate` |
 
 ## 3. Kế hoạch (8 bước, mỗi bước có test)

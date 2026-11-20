@@ -41,7 +41,7 @@ Cập nhật: 2026-11-20. Spec + tiêu chí nghiệm thu: [spec-phase2.md](spec-
 3. **Các giả định ❓ chưa hỏi trợ giảng** (B7, B8, B9, B12, B21, B23, B25, B27, B28, B29). Đã giữ giả định và đánh dấu; nếu giảng viên khác, sửa tại `src/core/sim.js` rồi chạy lại `npm run mutate`.
 4. Bot UI chỉ chạy được trên Windows + Edge/Chrome đã kiểm; chưa chạy trên macOS/Linux (CI để `continue-on-error`).
 5. `min FPS = 4` ở khung hình đầu (xem trên).
-6. Token/chi phí: gói Pro không có số tiền; xem ai-log.md.
+6. Token/chi phí: không có số đo (gói Pro dùng chung, không có phép đo thay thế phù hợp); xem ai-log.md.
 7. Màu ảnh chụp bị ánh sáng (ambient 0.15 ở đầu Đêm) làm tối hơn mã hex; mã hex chuẩn nằm trong code và được test.
 
 ## Đánh giá nhanh

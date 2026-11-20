@@ -48,7 +48,7 @@ Luật = `game.contract.json` + `docs/notes/assumptions-phaseN.md` + `docs/notes
 - Cơ chế dần dần (đẩy ≤ 30 tick): test phải kiểm giữa chừng, không chỉ trạng thái cuối, nếu không đột biến "dịch chuyển tức thời" vẫn qua.
 - Phase 4: đo trước khi tối ưu (benchmark baseline 62–98 FPS, p1 low ~18 do ~1200 draw call và rác mỗi tick); RSS một lần đọc dao động ±10 MB nên soak dùng trung vị sau `gc()` và khởi động nóng; soak phải chạy thử trên Linux (Docker node:22) vì RSS ở đó khác Windows: dùng MALLOC_ARENA_MAX=1, không nới ngưỡng; lấy mẫu bộ nhớ tiến trình tốn CPU nên làm ngoài cửa sổ đo FPS.
 - Trang Edge tự chèn lỗi (AssistantLoadState): bot UI chỉ đếm exception từ `/src/` hoặc three. Máy chủ trả 413 phải `req.resume()`, không hủy socket.
-- Không bịa số token/chi phí: ghi `/usage` % trước/sau từng phase (ai-log.md), người dùng điền.
+- Không bịa số token/chi phí: gói Pro dùng chung nhiều việc, không có phép đo thay thế phù hợp; ghi rõ "không có số đo" trong ai-log.md.
 
 ## Ghi chép
 - Giả định: `docs/notes/assumptions-phaseN.md` · Spec/tiêu chí: `docs/notes/spec-phaseN.md` · Checkpoint: `docs/notes/cpN-checklist.md` · Nhật ký AI: `docs/notes/ai-log.md` · Retro: `docs/notes/retro.md` · ADR: `docs/adr/`

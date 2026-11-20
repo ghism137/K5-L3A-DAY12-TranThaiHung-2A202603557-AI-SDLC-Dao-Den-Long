@@ -25,10 +25,10 @@ Trần Thái Hưng · 2A202603557 · Công cụ: Claude Code (VS Code), Sonnet 5
 - Công cụ PowerShell: hàm trùng alias, backtick làm hỏng markdown, tham số rỗng bị bỏ → ghi vào AGENTS.md, chuyển sang script .mjs.
 
 ## Token và chi phí
-Gói Pro không có số tiền/token chính xác. Tôi ghi `/usage` (% cửa sổ 5 giờ) trước và sau mỗi phase trong [ai-log.md](ai-log.md): **chưa ghi được số /usage cho phase nào (không bịa); mỗi phase tốn khoảng một phiên làm việc dài, Phase 2 và 4 nặng nhất**. Đây là số tương đối, không phải token hay tiền. Cách tiết kiệm đã dùng: chốt kế hoạch trước khi code, bot/script sinh bằng chứng thay vì hỏi lại AI, vá nhiều chỗ bằng một script có kiểm marker, tái dùng proof/mutate/smoke, đọc ticket một lần.
+**Không có số token hay chi phí cho bài này.** Tôi dùng gói Pro (thuê bao) nên `/cost` không áp dụng; `/usage` là phần trăm hạn mức chung của cả tài khoản và tôi dùng cùng tài khoản cho nhiều việc khác ngoài bài này, nên không tách được phần của riêng bài. Tôi không tìm được phép đo thay thế phù hợp và không ghi số ước tính (chi tiết ở [ai-log.md](ai-log.md)). Cảm nhận, không phải số đo: Phase 2 và 4 nặng nhất. Cách tiết kiệm đã dùng: chốt kế hoạch trước khi code, bot/script sinh bằng chứng thay vì hỏi lại AI, vá nhiều chỗ bằng một script có kiểm marker, tái dùng proof/mutate/smoke, đọc ticket một lần.
 
 ## Sẽ đổi nếu làm lại
 - Viết benchmark và scene chuẩn **từ Phase 1** để hiệu năng không thành nợ dồn tới cuối.
 - Hỏi TA sớm các giả định ❓ (vsync, p95, seed, achieved_at) thay vì tự chọn.
-- Dựng bot UI và hook sớm hơn; ghi `/usage` ngay sau mỗi phase thay vì nhớ lại.
+- Dựng bot UI và hook sớm hơn; dùng tài khoản riêng cho lab để có thể đo token/chi phí.
 - Thử giao diện với người thật (độ rõ chỉ báo, trình đọc màn hình): hiện mới kiểm bằng máy.

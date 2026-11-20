@@ -43,7 +43,7 @@ Cập nhật: 2026-11-20. Bằng chứng sinh bởi `npm run proof` (xem [docs/p
 1. Chưa có test tự động cho điều khiển bàn phím và chơi lại trong giao diện; cần người chơi thử một ván.
 2. Giả định ❓ (A1 ánh sáng = đom đóm mang, A4 safe_radius chỉ đèn đã sáng, A7 thứ tự thắng/thua) **chưa hỏi trợ giảng**; nếu đáp án khác, sửa tại `src/core/sim.js` và case tương ứng.
 3. Không có `dash`, không có rơi khỏi đảo (`fall_enabled: false`).
-4. Token/chi phí chưa đo, xem ai-log.md.
+4. Token/chi phí: không có số đo (gói Pro dùng chung, không có phép đo thay thế phù hợp); xem ai-log.md.
 5. ~~Chưa tag~~ Đã commit `eb4e93f`, tag `phase-1` trỏ đúng commit này (kiểm bằng GitHub API), CI xanh, clone thật từ tag chạy được.
 
 ## Đánh giá nhanh

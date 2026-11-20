@@ -1,6 +1,6 @@
 # Nhật ký dùng AI
 
-Công cụ: Claude Code (VS Code), model Sonnet 5.5. Token/chi phí: **chưa đo được từ trong phiên**, điền số thật từ thống kê của Claude Code (`/cost` hoặc usage) trước khi nộp. Không bịa số.
+Công cụ: Claude Code (VS Code), model Sonnet 5.5. Token/chi phí: **không có số đo** (xem mục "Token và chi phí" cuối file).
 
 | Phase | Việc giao cho AI | Cách tiết kiệm token | AI sai ở đâu + cách phát hiện + chỉnh harness |
 |---|---|---|---|
@@ -11,4 +11,11 @@ Công cụ: Claude Code (VS Code), model Sonnet 5.5. Token/chi phí: **chưa đo
 
 ## Token và chi phí
 
-- Tôi dùng **gói Pro nên không có số tiền hay token chính xác cho bài này** (`/cost` không áp dụng cho thuê bao). Không ghi số bịa.
+**Không có số token hay chi phí cho bài này, và tôi không đưa ra ước tính.** Lý do:
+
+- Tôi dùng **gói Pro (thuê bao)**, không phải API trả theo token. `/cost` không áp dụng cho thuê bao nên không cho số tiền hay số token.
+- Hạn mức của gói Pro (`/usage`) là **hạn mức chung của cả tài khoản**, không riêng bài này: cùng lúc tôi dùng cùng tài khoản cho các việc khác (các lab/ngày học khác, hỏi đáp ngoài lab). Vì vậy mức % `/usage` tăng giữa hai thời điểm không thể quy hết cho bài này.
+- `/usage` cũng chỉ là phần trăm của một cửa sổ có hạn mức không công bố và tự đặt lại, không phải token hay tiền; không quy đổi được.
+- Tôi không tìm được phép đo thay thế phù hợp (ví dụ đếm token từ log phiên không tách được phần của bài này và không tương ứng với cách tính hạn mức), nên **không ghi con số nào** để tránh số bịa (RULES.md mục 5).
+
+Thay cho số đo, ghi nhận định tính ở cột "Cách tiết kiệm token" trong bảng trên: chốt giả định và kế hoạch trước khi code (tránh viết lại), dùng bot/script sinh bằng chứng thay vì hỏi lại AI, `npm run mutate` thay vì đọc test thủ công, vá nhiều chỗ bằng một script có kiểm marker, tái dùng proof/mutate/smoke, đọc ticket một lần. Mỗi phase tốn khoảng một phiên làm việc dài; Phase 2 và 4 nặng nhất (đây là cảm nhận, không phải số đo).

@@ -42,7 +42,7 @@ Ghi chú c10/c11 (vùng an toàn): vẫn đạt không sửa vì đèn có fuel 
 2. "Đèn đầy dầu (used = 0) không được chọn": trong luật này đèn bị hao trước khi người chơi tương tác nên đèn thường không bao giờ đầy ở bước 5. Tôi cài lọc `fuel < 100` đúng ticket nhưng **không có case riêng** vì không thể dựng được trạng thái đó; giải thích trong ADR mục 3.
 3. Mutant "drain không thoát khi fuel ≥ 30" là tương đương (mọi đường làm fuel ≥ 30 đã đẩy drain → wander qua `startPush`).
 4. Nhấp nháy 1 Hz, thanh dầu, tia hút, đèn xẹp 20% + vết rách, âm thanh mới (`refuel`, `lantern_out`, `fuel_drain`): **kiểm tay, không có test tự động**. Người dùng đã chơi thử và xác nhận âm thanh và đèn dầu hoạt động (2026-11-20).
-5. Token/chi phí: gói Pro không có số tiền; xem ai-log.md.
+5. Token/chi phí: không có số đo (gói Pro dùng chung, không có phép đo thay thế phù hợp); xem ai-log.md.
 
 ## Đánh giá nhanh
 - Đạt: luật mới có case ở từng biên (30, 100, tick 6000, ngưỡng thắng 3/5, 4/6, 5/7, tick cuối); hồi quy Phase 2 đạt không sửa test.
