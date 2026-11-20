@@ -18,8 +18,11 @@ const file = (name, text) => {
 };
 const rows = (p) => readFileSync(p, "utf8").trim().split("\n").map((l) => JSON.parse(l));
 
-test("game.contract.json v1.2: đủ khóa và đúng số chuẩn của Ticket-02 + Ticket-03", () => {
-  assert.equal(contract.contract_version, "1.2");
+test("game.contract.json v1.3: đủ khóa, bench_cmd/soak_cmd, đúng số chuẩn của Ticket-02/03", () => {
+  assert.equal(contract.contract_version, "1.3");
+  assert.equal(contract.bench_cmd, "node scripts/bench.mjs");
+  assert.equal(contract.soak_cmd, "node --expose-gc scripts/soak.mjs");
+  assert.equal(contract.run_cmd, "npm start");
   for (const k of ["team", "build_cmd", "run_cmd", "headless_cmd"]) assert.equal(typeof contract[k], "string");
   const std = {
     player_speed: 6, carry_capacity: 10, lantern_cost: 10, lantern_count_night1: 5, pickup_radius: 1, interact_radius: 2,

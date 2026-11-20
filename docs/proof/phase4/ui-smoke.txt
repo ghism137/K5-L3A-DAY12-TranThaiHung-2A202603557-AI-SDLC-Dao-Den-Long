@@ -1,0 +1,60 @@
+ĐẠT    Menu hiện đầu tiên  (Đảo Đèn Lồng |  | Mây, người giữ đèn nhỏ tuổi, thắp lại ba hòn đảo giữa biển mây. |  | Bắt đầu | Bảng xếp hạng | Cài đặt |  | Đi: W/A/S/D · Nhảy: Space · Lướt: Shift · Nạp/châm dầu: E · Tỏa sáng: Q · Tạm dừng: Esc · kéo chuột xoay camera)
+ĐẠT    Bắt đầu → màn giới thiệu Đêm 1 có lời Ông Đăng
+ĐẠT    Vào chơi, HUD hiện
+        tốc độ mô phỏng: 60 tick/giây (cần 60) · ANGLE (Intel, Intel(R) UHD Graphics (0x00009A78) Direct3D11 vs_5_0 ps_5_0, D3D11)
+ĐẠT    Phím D di chuyển Mây (screen-right = −X)  (Δx=-4.40)
+ĐẠT    Space nhảy (rời mặt đất)
+ĐẠT    Shift lướt (hồi chiêu lướt chạy)
+ĐẠT    Esc → tạm dừng, có menu Tiếp tục/Chơi lại/Cài đặt/Về menu  (Tạm dừng | Tiếp tục | Chơi lại Đêm | Cài đặt | Về menu)
+ĐẠT    Tạm dừng: logic đứng yên hoàn toàn
+ĐẠT    Cài đặt âm lượng/độ nhạy được lưu (localStorage)  ({"volume":0.3,"sensitivity":2,"colorblind":false,"reduceMotion":false,"largeText":false,"cues":true,"keymap":{"up":["w","arrowup"],"down":["s","arrowdown"],"left":["a","arrowleft"],"right":["d","arrowright"],"jump":[" ",null],"dash":["shift",null],"interact":["e",null],"pulse":["q","f"],"pause":["escape","p"]}})
+ĐẠT    Cài đặt còn nguyên sau khi mở lại game  (volume=30)
+ĐẠT    Tiếp tục: logic chạy lại
+ĐẠT    Chơi lại Đêm từ menu tạm dừng
+ĐẠT    Hết giờ → thua, màn kết quả có 'Chơi lại Đêm này'  (Trời đã sáng... |  | Trời sáng mà chỉ còn 0/5 đèn sáng, cần ≥ 3. |  | Điểm Đêm 1: 0 |  | Chơi lại Đêm này | Về menu |  | Lưu điểm: 0 · Đêm thắng: 0/3 |  | Tên (3–12 ký tự: chữ, số hoặc _) |  | Lưu điểm)
+ĐẠT    Chơi lại → giới thiệu lại Đêm 1
+ĐẠT    Thắp đủ 5/5 đèn không kết thúc Đêm sớm (còn đang chơi)  (mode=playing)
+ĐẠT    Sống tới bình minh với đủ đèn → thắng, màn kết quả 'Bình minh' + 'Đêm kế tiếp'  (score=885 total=885 Bình minh! Đảo vẫn sáng |  | Giữ được 5/5 đèn tới bình minh (cần ≥ 3). |  | Điểm Đêm 1: 885 · Tổng: 885 |  | Đêm kế tiếp | Về menu)
+ĐẠT    Điểm Đêm 1 > 0 và cộng vào tổng
+ĐẠT    Đêm kế tiếp → giới thiệu Đêm 2 (Đảo Cau) kèm mục tiêu 4/6
+ĐẠT    Hết giờ với 2/5 đèn (< 3/5) → thua, kết quả nói rõ thiếu đèn  ({"mode":"result","st":"lost","night":1,"screen":"Trời đã sáng... |  | Trời sáng mà chỉ còn 2/5 đèn sáng, cần ≥ 3. |  | Điểm Đêm 1: 0 |  | Chơi lại Đêm này | Về menu |  | Lưu điểm: 0 · Đêm thắng: 0/3 |  | Tên (3–12 ký tự: chữ, số hoặc _) |  | Lưu điểm"})
+ĐẠT    Bấm E ở đèn yếu: châm dầu (fuel tăng mạnh, đom đóm giảm, +5 điểm mỗi đom đóm)  (fuel 15.6 → 99.7, mang 10 → 1, điểm 45)
+ĐẠT    Đèn hết dầu tắt (lit=false) và nhớ ever_lit  (lit=false ever=true fuel=0)
+ĐẠT    Thắng Đêm 3 → kết quả 'Đón Bình Minh'  (Bình minh! Đảo vẫn sáng |  | Giữ được 5/7 đèn tới bình minh (cần ≥ 5). |  | Điểm Đêm 3: 885 · Tổng: 885 |  | Đón Bình Minh | Về menu)
+ĐẠT    Màn Bình Minh hiện tổng điểm  (Bình Minh |  | Ông Đăng: “Ba hòn đảo đã sáng đèn. Cảm ơn cháu, người giữ đèn nhỏ tuổi.” |  | Tổng điểm: 885 |  | Về menu |  | Lưu điểm: 885 · Đêm thắng: 1/3 |  | Tên (3–12 ký tự: chữ, số hoặc _) |  | Lưu điểm)
+ĐẠT    HUD: đồng hồ mm:ss đổi sang đỏ khi ≤ 30 s  (0:24 rgb(255, 90, 95))
+ĐẠT    HUD: 3 Ngọn Lửa, thanh đom đóm 10 ô, biểu tượng hồi chiêu Lướt/Tỏa Sáng, đèn k/n, điểm  ({"timerClass":"danger","timerColor":"rgb(255, 90, 95)","cells":10,"flames":3,"dash":true,"pulse":true,"lanterns":"🏮 0/5 cần ≥ 3","score":"⭐ 0","timer":"0:24"})
+ĐẠT    HUD: mũi tên chỉ tới đèn chưa sáng khi nó ngoài màn hình
+ĐẠT    HUD: nhắc "E — Nạp ánh sáng (x/10)" khi đứng gần đèn  (E — Nạp ánh sáng (0/10))
+ĐẠT    HUD: sức chứa 10 + 2×3 = 16 ô, hiển thị mang/sức chứa (4/16), 'cần ≥ 3'  ({"cells":16,"cnt":"4/16","lanterns":"🏮 0/5 cần ≥ 3"})
+ĐẠT    Cài đặt 'Bảng màu dễ phân biệt' được lưu  ({"volume":0.3,"sensitivity":2,"colorblind":true,"reduceMotion":false,"largeText":false,"cues":true,"keymap":{"up":["w","arrowup"],"down":["s","arrowdown"],"left":["a","arrowleft"],"right":["d","arrowright"],"jump":[" ",null],"dash":["shift",null],"interact":["e",null],"pulse":["q","f"],"pause":["escape","p"]}})
+ĐẠT    Chế độ mù màu: viền Bóng Mực #00B3FF, cảnh báo UI trắng kèm ⚠ (còn nguyên sau khi tải lại)  ({"body":true,"color":"rgb(255, 255, 255)","before":"\"⚠ \"","edge":46079,"danger":16777215})
+ĐẠT    Tắt mù màu: trở lại #7A3CFF và cảnh báo đỏ #FF5A5F  ({"body":false,"color":"rgb(255, 90, 95)","edge":8011007})
+ĐẠT    Bảng xếp hạng từ menu chính: trống thì có lời mời chơi
+ĐẠT    Sau khi thua có ô nhập tên để lưu điểm
+ĐẠT    Tên quá ngắn (2 ký tự) bị báo lỗi ngay
+ĐẠT    Tên có khoảng trắng bị báo lỗi
+ĐẠT    Lưu tên tiếng Việt có dấu thành công và báo hạng  (Đã lưu! Bạn đứng hạng 1.)
+ĐẠT    Thắng Đêm 3 → màn Bình Minh có ô nhập tên
+ĐẠT    Lưu điểm sau Bình Minh: hạng 1 (điểm cao hơn)  (Đã lưu! Bạn đứng hạng 1.)
+ĐẠT    Bảng xếp hạng hiện đúng thứ tự (điểm giảm dần), có tên và số Đêm thắng  ([["1","Mây_Nhỏ","885","1/3","2026-11-21 01:59"],["2","Hưng_Đèn_01","0","0/3","2026-11-21 01:59"]])
+ĐẠT    Điểm được lưu trên ĐĨA (data/leaderboard.json) với đủ trường, ISO 8601 có múi giờ  ({"name":"Mây_Nhỏ","score":885,"nights_won":1,"achieved_at":"2026-11-21T01:59:25+07:00","seed":2})
+ĐẠT    Lệnh --export-leaderboard xuất đúng thứ tự, thoát mã 0
+ĐẠT    Đổi phím Nhảy sang J  (Đã đặt «Nhảy» = J.)
+ĐẠT    Gán phím đã dùng (E = Tương tác) bị từ chối và báo rõ hành động trùng  (Phím E đang dùng cho «Tương tác (nạp/châm dầu)». Hãy chọn phím khác.)
+ĐẠT    Phím được lưu (jump=J, pulse ô 2 đã xóa)  (["j",null]["q",null])
+ĐẠT    Phím cũ (Space) không còn nhảy sau khi đổi
+ĐẠT    Phím mới (J) nhảy được, còn nguyên sau khi tải lại trang
+ĐẠT    Khôi phục mặc định (jump = Space) và được lưu  ([" ",null]["q","f"])
+ĐẠT    Chỉ báo: '10 giây cuối'  (⏳ 10 giây cuối!)
+ĐẠT    Chỉ báo: Bóng Mực xuất hiện kèm phụ đề và mũi tên chỉ hướng ở mép màn hình  ({"cue":"⚠ Bóng Mực xuất hiện!\n⚠ Bóng Mực xuất hiện!","arrows":2} visible=true)
+ĐẠT    Chỉ báo: đèn có fuel < 30 báo 'sắp tắt' kèm tên đèn  (🏮 Đèn L1 sắp tắt!)
+ĐẠT    Chỉ báo: gió sắp thổi (Đêm 3)  (🍃 Gió sắp thổi!)
+ĐẠT    Tắt 'Phụ đề và chỉ báo' trong Cài đặt thì không còn chỉ báo
+ĐẠT    Bình thường: bị đánh thì chớp màn hình và rung camera  ({"flashes":1,"shake":0.47464999999999985})
+ĐẠT    Giảm chuyển động: không chớp màn hình, không rung camera  ({"flashes":0,"shake":0,"cls":true})
+ĐẠT    Mọi chữ giao diện ≥ 18 px ở 1280×720 (menu, cài đặt, đổi phím, bảng xếp hạng, HUD, tạm dừng, kết quả)  (nhỏ nhất 18px ở 'menu': P.hint:Đi: W/A/S/D · Nhảy: Spac)
+ĐẠT    Chữ lớn (×1.25): gốc 20 px và mọi chữ ≥ 22.5 px  ({"root":"20px","cls":true} nhỏ nhất 22.5px: P.hint:Đi: W/A/S/D · Nhảy: Spac)
+ĐẠT    Không có ngoại lệ JS trong suốt phiên
+
+57/57 đạt.

@@ -1,0 +1,76 @@
+đã bắt   bất tử không chặn hit
+đã bắt   điểm nạp đom đóm
+đã bắt   chờ hồi sinh 61 tick
+đã bắt   recoil 59 bước
+đã bắt   hồi chiêu lướt 91
+đã bắt   hồi bùa 2701
+đã bắt   Tỏa Sáng đo 2D
+đã bắt   bục bắn lại liên tục
+đã bắt   đẩy khỏi vùng an toàn lệch nhịp
+đã bắt   gió 2.2 m/s
+đã bắt   rơi làm tròn lên
+đã bắt   nhảy trên không
+đã bắt   lịch sinh Bóng Mực lệch
+đã bắt   không chuẩn hóa move
+đã bắt   tick sự kiện lệch 1
+đã bắt   công thức cam_yaw
+đã bắt   không chặn ở mép vùng an toàn
+tương đương  Gió Lạc cướp nhiều lần
+tương đương  bỏ hitDone
+đã bắt   vách đứng không chặn
+đã bắt   tháp không chặn
+đã bắt   hao dầu gấp đôi
+đã bắt   hút dầu 1/s thay vì 5/s
+đã bắt   vùng an toàn mất ở đúng 30
+đã bắt   đèn yếu tính cả đúng 30
+đã bắt   chi phí thắp lại bị đảo
+đã bắt   châm dầu làm tròn xuống
+đã bắt   ngưỡng thắng làm tròn xuống
+đã bắt   ngưỡng thắng nghiêm ngặt
+đã bắt   đèn hết dầu đúng 0 không tắt
+đã bắt   sức chứa tăng 1 thay vì 2
+đã bắt   stun Bóng drain không có thưởng
+đã bắt   hết choáng về chase
+đã bắt   thắp lại không tăng sức chứa
+đã bắt   thưởng bình minh bỏ floor(fuel)
+đã bắt   drain→chase ở 3 m thay vì 6 m
+đã bắt   fuel_drain lệch nhịp
+đã bắt   châm dầu qua 30 không đẩy Bóng Mực
+tương đương  drain không thoát khi fuel ≥ 30
+đã bắt   không châm dầu được đèn đang sáng
+đã bắt   hút cả đèn tắt
+đã bắt   relit_count không tăng
+đã bắt   không đi về đèn tắt
+đã bắt   châm dầu không có điểm
+đã bắt   thắp lại tính điểm thắp đầu
+đã bắt   lit:true không fuel mặc định sai
+đã bắt   bench vẫn sinh Bóng Mực
+đã bắt   bench vẫn sinh đom đóm
+đã bắt   bench vẫn nhặt đom đóm
+đã bắt   bench vẫn có sát thương
+đã bắt   bench vẫn hao dầu
+đã bắt   bench vẫn có điều kiện kết thúc
+đã bắt   tên tối đa 13 ký tự
+đã bắt   tên tối thiểu 2 ký tự
+đã bắt   không chuẩn hóa NFC
+đã bắt   xếp điểm tăng dần
+đã bắt   bằng điểm: người đến sau đứng trên
+đã bắt   giữ top 11
+đã bắt   nights_won cho phép 4
+đã bắt   không kiểm seed
+đã bắt   không kiểm định dạng ISO
+đã bắt   p1 low dùng 2% thay vì 1%
+tương đương  k không có sàn 1
+đã bắt   p95 sai chỉ số nearest-rank
+đã bắt   avg_fps lệch
+đã bắt   p1 low dùng 1 giá trị thay vì trung bình k giá trị
+đã bắt   camera đổi trục (θ=0 sai chỗ)
+đã bắt   camera 16 s một vòng
+đã bắt   camera cao 14 m
+đã bắt   99 đom đóm
+đã bắt   đổi phím không báo trùng
+đã bắt   cùng phím ở hai ô
+đã bắt   đọc lưu trữ chấp nhận trùng phím
+đã bắt   cho xóa hết phím của một hành động
+
+74 đột biến, 0 sống sót (không tính mutant tương đương).

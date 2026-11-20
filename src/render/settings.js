@@ -1,6 +1,8 @@
-// Cài đặt người chơi, lưu giữa các lần mở game (localStorage).
+// Cài đặt người chơi, lưu giữa các lần mở game (localStorage): âm lượng, độ nhạy, dễ tiếp cận, phím.
+import { sanitizeKeymap, cloneKeymap, DEFAULT_KEYMAP } from "../core/keymap.js";
+
 const KEY = "ddl.settings.v1";
-const DEFAULTS = { volume: 0.7, sensitivity: 1, colorblind: false };
+const DEFAULTS = { volume: 0.7, sensitivity: 1, colorblind: false, reduceMotion: false, largeText: false, cues: true };
 
 export function loadSettings() {
   try {
@@ -9,9 +11,13 @@ export function loadSettings() {
       volume: clamp(raw.volume, 0, 1, DEFAULTS.volume),
       sensitivity: clamp(raw.sensitivity, 0.2, 3, DEFAULTS.sensitivity),
       colorblind: raw.colorblind === true,
+      reduceMotion: raw.reduceMotion === true,
+      largeText: raw.largeText === true,
+      cues: raw.cues !== false, // chỉ báo hình ảnh bật mặc định
+      keymap: sanitizeKeymap(raw.keymap),
     };
   } catch {
-    return { ...DEFAULTS };
+    return { ...DEFAULTS, keymap: cloneKeymap(DEFAULT_KEYMAP) };
   }
 }
 

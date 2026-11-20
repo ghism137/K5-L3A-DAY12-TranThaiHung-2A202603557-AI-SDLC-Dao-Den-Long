@@ -99,8 +99,6 @@ export function createWorld() {
   let levelGroup = null;
   let lanternMeshes = new Map();
   let charmMeshes = new Map();
-  const moteMeshes = new Map();
-  const shadeMeshes = new Map();
   const drifterMeshes = new Map();
   let level = null;
   const camPos = new THREE.Vector3();
@@ -111,9 +109,7 @@ export function createWorld() {
 
   function load(game) {
     if (levelGroup) scene.remove(levelGroup);
-    for (const m of [...moteMeshes.values(), ...shadeMeshes.values(), ...drifterMeshes.values()]) scene.remove(m);
-    moteMeshes.clear();
-    shadeMeshes.clear();
+    for (const m of drifterMeshes.values()) scene.remove(m);
     drifterMeshes.clear();
     level = game.level;
     levelGroup = new THREE.Group();
@@ -220,36 +216,53 @@ export function createWorld() {
     hudCamReady = false;
   }
 
-  const moteGeo = new THREE.SphereGeometry(0.14, 10, 8);
-  const moteMat = basic(PAL.moteCore);
-  const haloMat = new THREE.SpriteMaterial({ map: glowTex, color: PAL.moteHalo, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
-  const makeMote = () => {
-    const g = new THREE.Group();
-    g.add(new THREE.Mesh(moteGeo, moteMat));
-    const h = new THREE.Sprite(haloMat);
-    h.scale.setScalar(1.3);
-    g.add(h);
-    return g;
-  };
+  // ---- Đom đóm: toàn bộ trong MỘT lần vẽ (THREE.Points + shader: lõi sáng + quầng, cộng sáng) ----
+  const MOTE_CAP = 512;
+  const motePos = new Float32Array(MOTE_CAP * 3);
+  const moteSize = new Float32Array(MOTE_CAP);
+  const moteAlpha = new Float32Array(MOTE_CAP).fill(0.9);
+  const moteGeo = new THREE.BufferGeometry();
+  moteGeo.setAttribute("position", new THREE.BufferAttribute(motePos, 3).setUsage(THREE.DynamicDrawUsage));
+  moteGeo.setAttribute("aSize", new THREE.BufferAttribute(moteSize, 1).setUsage(THREE.DynamicDrawUsage));
+  moteGeo.setAttribute("aAlpha", new THREE.BufferAttribute(moteAlpha, 1));
+  moteGeo.setDrawRange(0, 0);
+  const moteMat = new THREE.ShaderMaterial({
+    uniforms: { uScale: { value: 700 }, uCore: { value: new THREE.Color(PAL.moteCore) }, uHalo: { value: new THREE.Color(PAL.moteHalo) } },
+    vertexShader: `attribute float aSize; attribute float aAlpha; uniform float uScale; varying float vAlpha;
+      void main() { vAlpha = aAlpha; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = aSize * uScale / -mv.z; gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `uniform vec3 uCore; uniform vec3 uHalo; varying float vAlpha;
+      void main() { float d = length(gl_PointCoord - 0.5) * 2.0; if (d > 1.0) discard;
+        float core = smoothstep(0.26, 0.18, d); float halo = exp(-d * d * 2.6) * 0.95;
+        gl_FragColor = vec4(mix(uHalo, uCore, core), min(1.0, core + halo) * vAlpha); }`,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const motePoints = new THREE.Points(moteGeo, moteMat);
+  motePoints.frustumCulled = false;
+  scene.add(motePoints);
+
+  // ---- Bóng Mực: 3 lần vẽ cho mọi con (thân, viền, mắt) bằng InstancedMesh ----
+  const SHADE_CAP = 512;
+  const shadeBodyGeo = new THREE.SphereGeometry(0.78, 14, 10);
+  const shadeBody = new THREE.InstancedMesh(shadeBodyGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }), SHADE_CAP);
+  const outlineMat = basic(pal.shadeEdge, { side: THREE.BackSide });
   const eyeMat = basic(pal.shadeEdge);
+  edgeMats.add(outlineMat);
   edgeMats.add(eyeMat);
-  const makeShade = () => {
-    const g = new THREE.Group();
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.78, 18, 14), basic(PAL.shadeBody));
-    body.scale.set(1, 1.25, 1);
-    const outlineMat = basic(pal.shadeEdge, { side: THREE.BackSide });
-    edgeMats.add(outlineMat);
-    const outline = new THREE.Mesh(new THREE.SphereGeometry(0.78, 18, 14), outlineMat);
-    outline.scale.set(1.13, 1.38, 1.13);
-    for (const sx of [-0.27, 0.27]) {
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), eyeMat);
-      eye.position.set(sx, 0.2, 0.68);
-      g.add(eye);
-    }
-    g.add(body, outline);
-    g.userData = { body, outline };
-    return g;
-  };
+  const shadeOutline = new THREE.InstancedMesh(shadeBodyGeo, outlineMat, SHADE_CAP);
+  const shadeEyes = new THREE.InstancedMesh(new THREE.SphereGeometry(0.1, 8, 6), eyeMat, SHADE_CAP * 2);
+  const colBody = new THREE.Color(PAL.shadeBody);
+  const colStun = new THREE.Color(PAL.shadeStunned);
+  shadeBody.setColorAt(0, colBody);
+  for (const m of [shadeBody, shadeOutline, shadeEyes]) {
+    m.count = 0;
+    m.frustumCulled = false;
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    scene.add(m);
+  }
+  const dummy = new THREE.Object3D();
+  const shadePos = new Float32Array(SHADE_CAP * 3); // vị trí thế giới của từng Bóng Mực trong khung hình này (cho tia hút dầu)
   const makeDrifter = () => {
     const geo = new THREE.PlaneGeometry(2.8, 0.6, 14, 1);
     const m = new THREE.Mesh(geo, basic(PAL.drifter, { side: THREE.DoubleSide, transparent: true, opacity: 0.9 }));
@@ -284,7 +297,7 @@ export function createWorld() {
     pulseT = 0;
   }
 
-  function draw(game, prev, alpha, t, dt, camYaw, shake) {
+  function draw(game, prev, alpha, t, dt, camYaw, shake, camOverride = null) {
     const p = game.player;
     const tu = game.tuning;
     const px = lerp(prev.x, p.x, alpha), py = lerp(prev.y, p.y, alpha), pz = lerp(prev.z, p.z, alpha);
@@ -294,22 +307,59 @@ export function createWorld() {
     playerLight.intensity = 20 + Math.sin(t * 6) * 3 + (p.charm > 0 ? 6 : 0);
     handLamp.material.color.setHex(p.charm > 0 ? PAL.scarf : PAL.lanternLit);
 
-    syncPool(moteMeshes, game.motes, makeMote);
-    for (const m of moteMeshes.values()) {
-      const it = m.userData.item;
-      const fade = it.ttl !== null && it.ttl < 120 ? (Math.floor(t * 10) % 2 ? 0.3 : 1) : 1;
-      m.position.set(it.x, it.y + 0.9 + Math.sin(t * 2 + it.x) * 0.22, it.z);
-      m.scale.setScalar(fade);
+    // đom đóm (Points)
+    const mn = Math.min(game.motes.length, MOTE_CAP);
+    for (let i = 0; i < mn; i++) {
+      const it = game.motes[i];
+      motePos[i * 3] = it.x;
+      motePos[i * 3 + 1] = it.y + 0.9 + Math.sin(t * 2 + it.x) * 0.22;
+      motePos[i * 3 + 2] = it.z;
+      moteSize[i] = it.ttl !== null && it.ttl < 120 && Math.floor(t * 10) % 2 ? 0.4 : 1.3; // sắp biến mất thì nhấp nháy
     }
-    syncPool(shadeMeshes, game.shades, makeShade);
-    for (const m of shadeMeshes.values()) {
-      const s = m.userData.item;
+    moteGeo.attributes.position.needsUpdate = true;
+    moteGeo.attributes.aSize.needsUpdate = true;
+    moteGeo.setDrawRange(0, mn);
+    moteMat.uniforms.uScale.value = renderer.domElement.height / (2 * Math.tan((camera.fov * Math.PI) / 360));
+
+    // Bóng Mực (InstancedMesh)
+    const sn = Math.min(game.shades.length, SHADE_CAP);
+    for (let i = 0; i < sn; i++) {
+      const s = game.shades[i];
       const ps = prev.shades.get(s.id) ?? s;
-      m.position.set(lerp(ps.x, s.x, alpha), s.y + Math.sin(t * 3 + s.z) * 0.08, lerp(ps.z, s.z, alpha));
-      m.userData.body.material.color.setHex(s.state === "stunned" ? PAL.shadeStunned : PAL.shadeBody);
-      m.scale.setScalar(s.state === "spawning" ? 0.45 + 0.55 * (1 - s.spawning / 30) : s.state === "stunned" ? 0.85 : 1);
-      m.lookAt(px, m.position.y, pz);
+      const x = lerp(ps.x, s.x, alpha);
+      const z = lerp(ps.z, s.z, alpha);
+      const y = s.y + Math.sin(t * 3 + s.z) * 0.08;
+      const sc = s.state === "spawning" ? 0.45 + 0.55 * (1 - s.spawning / 30) : s.state === "stunned" ? 0.85 : 1;
+      const yaw = Math.atan2(px - x, pz - z); // quay mặt về phía Mây (cùng kết quả lookAt ngang)
+      shadePos[i * 3] = x;
+      shadePos[i * 3 + 1] = y;
+      shadePos[i * 3 + 2] = z;
+      dummy.position.set(x, y, z);
+      dummy.rotation.set(0, yaw, 0);
+      dummy.scale.set(sc, 1.25 * sc, sc);
+      dummy.updateMatrix();
+      shadeBody.setMatrixAt(i, dummy.matrix);
+      dummy.scale.set(1.13 * sc, 1.38 * sc, 1.13 * sc);
+      dummy.updateMatrix();
+      shadeOutline.setMatrixAt(i, dummy.matrix);
+      shadeBody.setColorAt(i, s.state === "stunned" ? colStun : colBody);
+      const cy = Math.cos(yaw);
+      const sy = Math.sin(yaw);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.setScalar(sc);
+      for (let k = 0; k < 2; k++) {
+        const ex = (k === 0 ? -0.27 : 0.27) * sc;
+        const ez = 0.68 * sc;
+        dummy.position.set(x + ex * cy + ez * sy, y + 0.2 * sc, z - ex * sy + ez * cy);
+        dummy.updateMatrix();
+        shadeEyes.setMatrixAt(i * 2 + k, dummy.matrix);
+      }
     }
+    shadeBody.count = shadeOutline.count = sn;
+    shadeEyes.count = sn * 2;
+    shadeBody.instanceMatrix.needsUpdate = shadeOutline.instanceMatrix.needsUpdate = shadeEyes.instanceMatrix.needsUpdate = true;
+    shadeBody.instanceColor.needsUpdate = true;
+
     syncPool(drifterMeshes, game.drifters, makeDrifter);
     for (const m of drifterMeshes.values()) {
       const d = m.userData.item;
@@ -324,8 +374,8 @@ export function createWorld() {
 
     // tia hút dầu: Bóng Mực đang drain nối tới đèn
     let usedBeams = 0;
-    for (const m of shadeMeshes.values()) {
-      const s = m.userData.item;
+    for (let i = 0; i < sn; i++) {
+      const s = game.shades[i];
       const ld = s.state === "drain" ? game.lanterns.find((x) => x.id === s.target) : null;
       if (!ld) continue;
       let b = beams[usedBeams++];
@@ -336,7 +386,7 @@ export function createWorld() {
         beams.push(b);
       }
       const pos = b.geometry.attributes.position;
-      pos.setXYZ(0, m.position.x, m.position.y, m.position.z);
+      pos.setXYZ(0, shadePos[i * 3], shadePos[i * 3 + 1], shadePos[i * 3 + 2]);
       pos.setXYZ(1, ld.x, ld.y + 3.5, ld.z);
       pos.needsUpdate = true;
       b.material.color.setHex(pal.shadeEdge);
@@ -421,16 +471,22 @@ export function createWorld() {
     }
 
     // camera ngôi thứ ba: vị trí = người chơi + (sinθ, cosθ) × d, khớp công thức xoay move của contract
-    const th = rad(camYaw);
-    wantCam.set(px + Math.sin(th) * 10, py + 6.5, pz + Math.cos(th) * 10);
-    if (!hudCamReady) {
-      camPos.copy(wantCam);
-      hudCamReady = true;
+    if (camOverride) {
+      // camera cố định theo công thức (cảnh benchmark): không làm mượt, không rung
+      camera.position.set(camOverride.x, camOverride.y, camOverride.z);
+      camera.lookAt(camOverride.lookAt[0], camOverride.lookAt[1], camOverride.lookAt[2]);
+    } else {
+      const th = rad(camYaw);
+      wantCam.set(px + Math.sin(th) * 10, py + 6.5, pz + Math.cos(th) * 10);
+      if (!hudCamReady) {
+        camPos.copy(wantCam);
+        hudCamReady = true;
+      }
+      camPos.lerp(wantCam, 1 - Math.exp(-dt * 9)); // làm mượt theo thời gian thật, không phụ thuộc tần số quét
+      camera.position.copy(camPos);
+      if (shake > 0) camera.position.add(tmp.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake, 0));
+      camera.lookAt(px, py + 1.6, pz);
     }
-    camPos.lerp(wantCam, 1 - Math.exp(-dt * 9)); // làm mượt theo thời gian thật, không phụ thuộc tần số quét
-    camera.position.copy(camPos);
-    if (shake > 0) camera.position.add(tmp.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake, 0));
-    camera.lookAt(px, py + 1.6, pz);
 
     scene.fog.color.copy(FOG_A);
     renderer.render(scene, camera);

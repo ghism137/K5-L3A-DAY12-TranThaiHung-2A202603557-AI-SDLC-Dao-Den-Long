@@ -5,6 +5,17 @@ import { spawnSync } from "node:child_process";
 
 const S = "src/core/sim.js";
 const T = "src/core/terrain.js";
+const LB = "src/core/leaderboard.js";
+const BN = "src/core/bench.js";
+const KM = "src/core/keymap.js";
+// Mỗi mutant chỉ chạy các file test liên quan tới file bị phá (nhanh hơn nhiều so với cả bộ test, vốn chạy tuần tự ~65 s)
+const TESTS = {
+  [S]: ["tests/scenarios.test.js", "tests/contract.test.js", "tests/bench.test.js"],
+  [T]: ["tests/scenarios.test.js", "tests/contract.test.js"],
+  [LB]: ["tests/leaderboard.test.js"],
+  [BN]: ["tests/bench.test.js"],
+  [KM]: ["tests/keymap.test.js"],
+};
 const mutants = [
   [S, "if (p.invuln > 0 || hitDone) continue;", "if (false) continue;", "bất tử không chặn hit"],
   [S, "g.score += amount * tu.score.per_mote;", "g.score += 0;", "điểm nạp đom đóm"],
@@ -49,10 +60,39 @@ const mutants = [
   [S, "(!l.lit || l.fuel < maxU) && dist2", "(!l.lit) && dist2", "không châm dầu được đèn đang sáng"],
   [S, "if (tgt.lit && dist2(sh.x, sh.z, tgt.x, tgt.z) <= R.drainReach + 1e-9) {", "if (dist2(sh.x, sh.z, tgt.x, tgt.z) <= R.drainReach + 1e-9) {", "hút cả đèn tắt"],
   [S, "best.relit++;", "", "relit_count không tăng"],
-  [S, "const pool = weak.length ? weak : g.lanterns.filter((l) => !l.lit);", "const pool = weak;", "không đi về đèn tắt"],
+  [S, "targetPool = weak.length ? weak : g.lanterns.filter((l) => !l.lit);", "targetPool = weak;", "không đi về đèn tắt"],
   [S, "g.score += used * tu.score.per_mote;", "g.score += 0;", "châm dầu không có điểm"],
   [S, "g.score += tu.score.per_relight;", "g.score += tu.score.per_lantern;", "thắp lại tính điểm thắp đầu"],
   [S, "t.fuel = Math.min(maxU, Math.round((t.fuelSpec ?? tu.fuel_max) * 60));", "t.fuel = Math.min(maxU, Math.round((t.fuelSpec ?? 50) * 60));", "lit:true không fuel mặc định sai"],
+  // ---- Phase 4 (Ticket-04): cờ bench, bảng xếp hạng, thống kê benchmark, đổi phím ----
+  [S, "const wantRandomShades = sc.random_shades !== false && !bench;", "const wantRandomShades = sc.random_shades !== false;", "bench vẫn sinh Bóng Mực"],
+  [S, "const wantRandomMotes = sc.random_motes !== false && !bench;", "const wantRandomMotes = sc.random_motes !== false;", "bench vẫn sinh đom đóm"],
+  [S, "    // 4. nhặt đom đóm và bùa\n    if (alive && !bench) {", "    // 4. nhặt đom đóm và bùa\n    if (alive) {", "bench vẫn nhặt đom đóm"],
+  [S, "(theo id tăng dần, tối đa 1 lần mất flame mỗi tick)\n    if (alive && !bench) {", "(theo id tăng dần, tối đa 1 lần mất flame mỗi tick)\n    if (alive) {", "bench vẫn có sát thương"],
+  [S, "    if (!bench) {\n    for (const l of g.lanterns) if (l.lit) l.fuel -= tu.fuel_decay_per_s;", "    if (true) {\n    for (const l of g.lanterns) if (l.lit) l.fuel -= tu.fuel_decay_per_s;", "bench vẫn hao dầu"],
+  [S, "    if (bench) {\n      // cảnh benchmark: không có điều kiện kết thúc\n    } else if (p.flames <= 0)", "    if (false) {\n    } else if (p.flames <= 0)", "bench vẫn có điều kiện kết thúc"],
+  [LB, "{3,12}$/u", "{3,13}$/u", "tên tối đa 13 ký tự"],
+  [LB, "{3,12}$/u", "{2,12}$/u", "tên tối thiểu 2 ký tự"],
+  [LB, 'String(name ?? "").normalize("NFC")', 'String(name ?? "").normalize("NFD")', "không chuẩn hóa NFC"],
+  [LB, "b.e.score - a.e.score ||", "a.e.score - b.e.score ||", "xếp điểm tăng dần"],
+  [LB, "Date.parse(a.e.achieved_at) - Date.parse(b.e.achieved_at)", "Date.parse(b.e.achieved_at) - Date.parse(a.e.achieved_at)", "bằng điểm: người đến sau đứng trên"],
+  [LB, "export const MAX_ENTRIES = 10;", "export const MAX_ENTRIES = 11;", "giữ top 11"],
+  [LB, "e.nights_won > 3", "e.nights_won > 4", "nights_won cho phép 4"],
+  [LB, "if (!Number.isInteger(e.seed)) return", "if (false) return", "không kiểm seed"],
+  [LB, "typeof e.achieved_at !== \"string\" || !ISO_RE.test(e.achieved_at) ||", "typeof e.achieved_at !== \"string\" ||", "không kiểm định dạng ISO"],
+  [BN, "const k = Math.max(1, Math.ceil(0.01 * n));", "const k = Math.max(1, Math.ceil(0.02 * n));", "p1 low dùng 2% thay vì 1%"],
+  [BN, "const k = Math.max(1, Math.ceil(0.01 * n));", "const k = Math.ceil(0.01 * n);", "k không có sàn 1", true], // tương đương: với n >= 1 thì ceil(0.01·n) >= 1 (n = 0 đã trả về sớm)
+  [BN, "sorted[Math.ceil(0.95 * n) - 1]", "sorted[Math.floor(0.95 * n)]", "p95 sai chỉ số nearest-rank"],
+  [BN, "(1000 * n) / sum", "(1000 * n) / (sum + 1)", "avg_fps lệch"],
+  [BN, "const meanWorst = worst.reduce((a, b) => a + b, 0) / k;", "const meanWorst = worst[0];", "p1 low dùng 1 giá trị thay vì trung bình k giá trị"],
+  [BN, "x: BENCH.orbitRadius * Math.cos(a), y: BENCH.orbitHeight, z: BENCH.orbitRadius * Math.sin(a)", "x: BENCH.orbitRadius * Math.sin(a), y: BENCH.orbitHeight, z: BENCH.orbitRadius * Math.cos(a)", "camera đổi trục (θ=0 sai chỗ)"],
+  [BN, "orbitPeriodS: 15", "orbitPeriodS: 16", "camera 16 s một vòng"],
+  [BN, "orbitHeight: 15", "orbitHeight: 14", "camera cao 14 m"],
+  [BN, "shades: 200, motes: 100", "shades: 200, motes: 99", "99 đom đóm"],
+  [KM, "if (conflict) return { ok: false, map, conflict };", "", "đổi phím không báo trùng"],
+  [KM, "if (other === k) next[action][1 - slot] = null;", "", "cùng phím ở hai ô"],
+  [KM, "if (seen.has(k)) throw new Error(\"trùng\");", "", "đọc lưu trữ chấp nhận trùng phím"],
+  [KM, "if (next[action][0] === null && next[action][1] === null) return", "if (false) return", "cho xóa hết phím của một hành động"],
 ];
 
 let survived = 0;
@@ -66,7 +106,7 @@ for (const [file, from, to, name, equivalent] of mutants) {
   writeFileSync(file, orig.replace(from, to));
   let r;
   try {
-    r = spawnSync("npm", ["test", "--silent"], { encoding: "utf8", shell: true });
+    r = spawnSync(process.execPath, ["--test", "--test-concurrency=1", ...(TESTS[file] ?? [])], { encoding: "utf8" });
   } finally {
     writeFileSync(file, orig);
   }

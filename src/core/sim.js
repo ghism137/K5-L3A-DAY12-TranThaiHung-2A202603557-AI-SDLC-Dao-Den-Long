@@ -36,7 +36,7 @@ export function windAt(seed, simTick) {
   return { active, dir_deg: windDir(seed, k), warning: !active && simTick >= start - w.warn, k };
 }
 
-export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
+export function createGame({ tuning, seed = 1, night = 1, scenario = {}, bench = false }) {
   const tu = tuning;
   const level = NIGHTS[night];
   if (!level) throw new FormatError(`không có Đêm ${night}`);
@@ -45,9 +45,10 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
   const dashTicksN = toTicks(tu.dash_duration_s);
   const dashCdN = toTicks(tu.dash_cooldown_s);
   const shadeSpeed = level.shades.speed ?? tu.shade_speed;
-  const wantRandomMotes = sc.random_motes !== false;
-  const wantRandomShades = sc.random_shades !== false;
-  const wantDrifters = level.drifters && sc.random_drifters !== false;
+  // bench: cảnh benchmark của Ticket-04. Tắt sinh thêm, sát thương, nhặt, hao dầu, điều kiện kết thúc; Bóng Mực vẫn di chuyển theo luật wander.
+  const wantRandomMotes = sc.random_motes !== false && !bench;
+  const wantRandomShades = sc.random_shades !== false && !bench;
+  const wantDrifters = level.drifters && sc.random_drifters !== false && !bench;
   const wantWind = level.wind && sc.wind_enabled !== false;
   // dầu tính bằng số nguyên đơn vị 1/60 (U = fuel × 60): hao fuel_decay_per_s đơn vị/tick, hút drain_per_s đơn vị/tick
   const maxU = tu.fuel_max * 60;
@@ -77,6 +78,7 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
     lanterns: level.lanterns.map((l) => ({ ...l, lit: false, deposited: 0, fuel: 0, everLit: false, relit: 0 })),
     prev: { jump: false, interact: false, pulse: false, dash: false, pause: false },
     wind: { active: false, dir_deg: 0 },
+    bench,
     successful: 0, // số lần thắp thành công trong Đêm (tính cả thắp lại), quyết định sức chứa
   };
   const p = g.player;
@@ -191,7 +193,7 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
     s.y = s.gy + R.shadeY;
   };
   const clampSafe = (s) => {
-    for (const l of safeLanterns()) {
+    for (const l of safeCache ?? safeLanterns()) {
       const d = dist2(s.x, s.z, l.x, l.z);
       if (d < tu.safe_radius) {
         const ux = d === 0 ? 1 : (s.x - l.x) / d;
@@ -206,10 +208,20 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
     s.drainTicks = 0;
   };
   // đích của Bóng Mực wander: đèn yếu (sáng, fuel < 30) gần nhất; không có thì đèn tắt gần nhất
+  // Danh sách đích của Bóng Mực wander, tính MỘT lần mỗi tick ở bước 8 (đèn không đổi trạng thái trong bước 8): đèn yếu, không có thì đèn tắt.
+  let targetPool = [];
+  let safeCache = null; // đèn có vùng an toàn, tính một lần mỗi tick ở bước 8
   const pickTarget = (s) => {
-    const weak = g.lanterns.filter((l) => l.lit && l.fuel < lowU);
-    const pool = weak.length ? weak : g.lanterns.filter((l) => !l.lit);
-    return pool.sort((a, b) => dist2(s.x, s.z, a.x, a.z) - dist2(s.x, s.z, b.x, b.z) || byId(a, b))[0] ?? null;
+    let best = null;
+    let bd = Infinity;
+    for (const l of targetPool) {
+      const d = dist2(s.x, s.z, l.x, l.z);
+      if (d < bd || (d === bd && byId(l, best) < 0)) {
+        best = l;
+        bd = d;
+      }
+    }
+    return best;
   };
   const evalState = (s) => {
     const d = dist2(s.x, s.z, p.x, p.z);
@@ -252,6 +264,7 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
     g.motes = g.motes.filter((m) => m.ttl === null || m.ttl > 0);
     for (const c of g.charms) if (c.respawn > 0 && --c.respawn === 0) c.available = true;
     // dầu: hao + bị hút (bước 2), rồi đèn có fuel <= 0 tắt ngay
+    if (!bench) {
     for (const l of g.lanterns) if (l.lit) l.fuel -= tu.fuel_decay_per_s;
     const drained = new Map();
     for (const sh of g.shades) {
@@ -270,6 +283,8 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
         l.deposited = 0;
         emit("lantern_out", { lantern_id: l.id });
       }
+    }
+
     }
 
     // 3. di chuyển Mây
@@ -386,7 +401,7 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
     const alive = !p.fallPending;
 
     // 4. nhặt đom đóm và bùa
-    if (alive) {
+    if (alive && !bench) {
       const cand = g.motes
         .filter((m) => dist2(p.x, p.z, m.x, m.z) <= tu.pickup_radius && Math.abs(p.y - m.y) <= R.pickupDy)
         .sort((a, b) => dist2(p.x, p.z, a.x, a.z) - dist2(p.x, p.z, b.x, b.z) || byId(a, b));
@@ -500,6 +515,11 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
     }
 
     // 8. Bóng Mực và Gió Lạc di chuyển
+    {
+      const weak = g.lanterns.filter((l) => l.lit && l.fuel < lowU);
+      targetPool = weak.length ? weak : g.lanterns.filter((l) => !l.lit);
+      safeCache = safeLanterns();
+    }
     for (const sh of g.shades) {
       if (sh.spawning > 0) {
         settleShade(sh);
@@ -571,6 +591,7 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
       clampSafe(sh);
       settleShade(sh);
     }
+    safeCache = null;
     for (const d of g.drifters) {
       const dist = dist2(d.x, d.z, p.x, p.z);
       if (d.state !== "flee") d.state = p.carried >= R.drifter.aggroCarried && dist <= R.drifter.aggroDist ? "chase" : "idle";
@@ -608,7 +629,7 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
     g.drifters = g.drifters.filter((d) => !(d.state === "flee" && d.flee === 0));
 
     // 9. chạm: Gió Lạc cướp trước, rồi Bóng Mực gây hit (theo id tăng dần, tối đa 1 lần mất flame mỗi tick)
-    if (alive) {
+    if (alive && !bench) {
       for (const d of g.drifters) {
         if (d.state === "chase" && !d.stole && p.carried > 0 && dist2(d.x, d.z, p.x, p.z) <= R.drifter.touch) {
           const amount = Math.min(R.drifter.steal, p.carried);
@@ -687,7 +708,9 @@ export function createGame({ tuning, seed = 1, night = 1, scenario = {} }) {
       g.state = result;
       emit("game_over", { result, reason });
     };
-    if (p.flames <= 0) over("lost", "no_flames");
+    if (bench) {
+      // cảnh benchmark: không có điều kiện kết thúc
+    } else if (p.flames <= 0) over("lost", "no_flames");
     else if (g.remaining <= 0) {
       // bình minh: còn sống và đủ đèn sáng (ceil(0.6 × n)) thì thắng; không thắng sớm
       const lit = g.lanterns.filter((l) => l.lit);

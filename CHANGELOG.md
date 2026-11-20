@@ -2,6 +2,24 @@
 
 Quy ước: **BREAKING** = thay đổi phá vỡ tương thích với phase trước (đầu ra headless, luật hoặc contract khác đi).
 
+## Phase 4: "Bình minh" (tag `phase-4`, Release `v1.0.0`, Contract v1.3)
+
+Không có thay đổi phá vỡ: **đầu ra headless của 99 case giống hệt từng byte so với Phase 3** ([docs/proof/phase4/regression.txt](docs/proof/phase4/regression.txt)). Contract v1.3 chỉ thêm `bench_cmd` và `soak_cmd`.
+
+### Added
+- **Benchmark**: `node scripts/bench.mjs --seed 42 --duration 30 --out bench.json`. Cảnh chuẩn (200 Bóng Mực wander, 100 đom đóm, 3 đèn sáng, camera quỹ đạo 15 s/vòng), 3 s khởi động, 1280×720, vsync tắt bằng cờ trình duyệt, `bench.json` đủ trường (avg, p1 low, p95 nearest-rank, frames, load_ms, peak_mem_mb, vsync_off, renderer, os).
+- **Soak test**: `node --expose-gc scripts/soak.mjs --seed 7 --nights 10 --out soak.json`: 10 Đêm liên tiếp một tiến trình, input ngẫu nhiên theo seed, `crashes`, `mem_start_mb`, `mem_end_mb`.
+- **Bảng xếp hạng cục bộ**: tên 3–12 ký tự (chữ, số, `_`, có Unicode), top 10, điểm giảm dần rồi ai đạt trước, lưu `data/leaderboard.json`, màn hình trong menu, `--export-leaderboard out.json`.
+- **Dễ tiếp cận**: đổi phím (2 ô/hành động, báo trùng, khôi phục mặc định, lưu), chỉ báo hình ảnh (Bóng Mực xuất hiện kèm mũi tên mép màn hình, gió, 10 giây cuối, dầu < 30), giảm chuyển động, chữ ≥ 18 px, "Chữ lớn" ×1.25.
+- **Đóng gói**: `npm run package` tạo `dao-den-long-v1.0.0.zip` chạy được (start.bat / start.sh, chỉ cần Node ≥ 22); README đầy đủ, CREDITS, LICENSE, retro.
+- Cờ `bench` của `createGame` (chỉ cảnh benchmark dùng, không với tới được từ CLI).
+- 74 đột biến trong `npm run mutate` (thêm 28), 154 test, bot giao diện 57 kiểm tra.
+
+### Changed
+- Render: Bóng Mực vẽ bằng InstancedMesh, đom đóm bằng Points + shader, tư thế cập nhật tại chỗ; mô phỏng tính nhóm mục tiêu một lần mỗi tick. FPS cảnh benchmark từ 62–98 (p1 low ~18) lên ~260 (p1 low ~58) trên máy phát triển. Hành vi không đổi.
+- `npm test` chạy tuần tự (`--test-concurrency=1`) vì test soak đo bộ nhớ và test benchmark mở trình duyệt nhiễu nhau khi chạy song song.
+- Máy chủ cục bộ có danh sách file được phép phục vụ, `/api/leaderboard`, giới hạn body 4 KB (413).
+
 ## Phase 3: "Đèn cạn dầu" (tag `phase-3`, Contract v1.2)
 
 Quyết định thiết kế: [docs/adr/0001-lantern-fuel-and-dawn-win.md](docs/adr/0001-lantern-fuel-and-dawn-win.md).

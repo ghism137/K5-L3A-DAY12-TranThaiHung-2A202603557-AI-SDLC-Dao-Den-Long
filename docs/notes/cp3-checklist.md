@@ -41,7 +41,7 @@ Ghi chú c10/c11 (vùng an toàn): vẫn đạt không sửa vì đèn có fuel 
 1. **Các giả định ❓ chưa hỏi trợ giảng**: D6 (tên khóa điểm trong `tuning.score`), D9 (wander tới đèn tắt "như trước"), D10 (tốc độ tới đích), D13 (nhịp `fuel_drain`), D17–D18 (`target_lantern_id`). Giữ giả định và ghi rõ; nếu giảng viên đáp khác, sửa `src/core/sim.js` rồi chạy lại `npm run mutate`.
 2. "Đèn đầy dầu (used = 0) không được chọn": trong luật này đèn bị hao trước khi người chơi tương tác nên đèn thường không bao giờ đầy ở bước 5. Tôi cài lọc `fuel < 100` đúng ticket nhưng **không có case riêng** vì không thể dựng được trạng thái đó; giải thích trong ADR mục 3.
 3. Mutant "drain không thoát khi fuel ≥ 30" là tương đương (mọi đường làm fuel ≥ 30 đã đẩy drain → wander qua `startPush`).
-4. Nhấp nháy 1 Hz, thanh dầu, tia hút, đèn xẹp 20% + vết rách, âm thanh mới (`refuel`, `lantern_out`, `fuel_drain`): **chỉ kiểm bằng ảnh và đọc code**, chưa nghe/xem trong thực tế. Cần bạn chơi thử.
+4. Nhấp nháy 1 Hz, thanh dầu, tia hút, đèn xẹp 20% + vết rách, âm thanh mới (`refuel`, `lantern_out`, `fuel_drain`): **kiểm tay, không có test tự động**. Người dùng đã chơi thử và xác nhận âm thanh và đèn dầu hoạt động (2026-11-20).
 5. Token/chi phí: gói Pro không có số tiền; xem ai-log.md.
 
 ## Đánh giá nhanh

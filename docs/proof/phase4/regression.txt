@@ -1,0 +1,5 @@
+Hồi quy Phase 1-3 (Ticket-04: không đổi luật, không đổi đầu ra headless)
+
+Chạy: npm run proof -- <thư mục tạm> trên mã của tag phase-4, rồi so các dòng case của REPORT.md với docs/proof/phase3/REPORT.md.
+Kết quả: 99 case, mọi cột (yêu cầu, output, kết quả, sha256) GIỐNG HỆT Phase 3.
+Nghĩa là đầu ra headless (out.jsonl) của cả 99 scenario không đổi một byte; cờ createGame({ bench }) mặc định false và không thể bật từ CLI.
