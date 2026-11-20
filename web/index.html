@@ -5,20 +5,51 @@
 <title>Đảo Đèn Lồng</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #140d24; font-family: system-ui, sans-serif; color: #ffe9b8; }
-  canvas { display: block; }
-  #hud { position: fixed; top: 12px; left: 14px; font-size: 18px; line-height: 1.6; text-shadow: 0 1px 4px #000; user-select: none; pointer-events: none; }
-  #hud b { color: #ffb347; }
-  #help { position: fixed; bottom: 10px; left: 14px; font-size: 13px; opacity: .75; text-shadow: 0 1px 3px #000; pointer-events: none; }
-  #msg { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; background: rgba(20, 13, 36, .72); text-align: center; }
-  #msg h1 { font-size: 48px; margin: 0 0 8px; color: #ffb347; }
-  #msg p { font-size: 20px; margin: 4px; }
+  :root { --sky:#0E1430; --mist:#1B2350; --gold:#F2C14E; --lamp:#FFB347; --danger:#FF5A5F; --text:#F5F1E6; --scarf:#C8102E; }
+  html, body { margin:0; height:100%; overflow:hidden; background:var(--sky); color:var(--text); font-family:system-ui,"Segoe UI",sans-serif; user-select:none; }
+  canvas { display:block; }
+  #hud { position:fixed; inset:0; pointer-events:none; display:none; text-shadow:0 1px 4px #000; }
+  .tl { position:absolute; top:14px; left:16px; font-size:26px; }
+  .flame { opacity:.25; filter:grayscale(1); margin-right:4px; } .flame.on { opacity:1; filter:none; }
+  #hud-night { font-size:14px; opacity:.75; margin-top:2px; }
+  #hud-timer { position:absolute; top:12px; left:50%; transform:translateX(-50%); font-size:34px; font-weight:700; letter-spacing:2px; }
+  #hud-timer.danger { color:var(--danger); } #hud-timer.blink { opacity:.35; }
+  #hud-wind { position:absolute; top:58px; left:50%; transform:translateX(-50%); font-size:16px; color:var(--gold); }
+  .tr { position:absolute; top:14px; right:18px; text-align:right; font-size:24px; line-height:1.5; } #hud-score { color:var(--gold); font-weight:700; }
+  #hud-motes { position:absolute; bottom:26px; left:50%; transform:translateX(-50%); display:flex; gap:6px; padding:8px 12px; background:rgba(14,20,48,.55); border:2px solid var(--gold); border-radius:20px; }
+  #hud-motes i { width:18px; height:18px; border-radius:50%; background:rgba(255,246,194,.12); border:1px solid rgba(242,193,78,.5); }
+  #hud-motes i.on { background:#FFF6C2; box-shadow:0 0 10px 3px #FFE58A; border-color:#FFE58A; }
+  #hud-prompt { position:absolute; bottom:86px; left:50%; transform:translateX(-50%); font-size:20px; background:rgba(14,20,48,.6); padding:4px 14px; border-radius:14px; } #hud-prompt:empty { display:none; }
+  .br { position:absolute; bottom:22px; right:22px; display:flex; gap:12px; align-items:flex-end; }
+  .cd { position:relative; width:58px; height:58px; border-radius:50%; background:conic-gradient(rgba(14,20,48,.85) var(--p,0%), rgba(242,193,78,.9) 0); display:flex; align-items:center; justify-content:center; font-size:11px; text-align:center; color:#0E1430; font-weight:700; border:2px solid var(--gold); }
+  .cd.dim { filter:grayscale(.8) brightness(.7); } .cd span { background:rgba(245,241,230,.9); border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; line-height:1.05; }
+  #hud-charm { position:absolute; bottom:90px; right:24px; font-size:15px; color:#fff; background:var(--scarf); padding:3px 10px; border-radius:12px; border:2px solid var(--gold); } #hud-charm:empty { display:none; }
+  #hud-arrow { position:absolute; left:0; top:0; width:40px; height:40px; display:none; } #hud-arrow:before { content:""; position:absolute; inset:6px; background:var(--lamp); clip-path:polygon(0 25%,60% 25%,60% 0,100% 50%,60% 100%,60% 75%,0 75%); filter:drop-shadow(0 0 6px var(--lamp)); }
+  #flash { position:fixed; inset:0; pointer-events:none; opacity:0; transition:opacity .35s; }
+  #fps { position:fixed; bottom:4px; left:6px; font:12px monospace; color:#9f9; display:none; pointer-events:none; }
+  #screen { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(14,20,48,.78); }
+  .panel { max-width:560px; padding:28px 36px; text-align:center; background:var(--mist); border:3px solid var(--gold); border-radius:22px; box-shadow:0 0 40px rgba(255,179,71,.25); }
+  h1 { margin:6px 0 8px; font-size:46px; color:var(--lamp); } h2 { margin:0 0 14px; color:var(--gold); } h1.good { color:var(--lamp); } h1.bad { color:var(--danger); }
+  .sub { font-size:19px; margin:6px 0 14px; } .hint { font-size:13px; opacity:.7; } .quote { font-size:17px; line-height:1.5; font-style:italic; margin:12px 0 18px; } .quote b { color:var(--gold); font-style:normal; }
+  .btn { display:block; width:100%; margin:10px 0 0; padding:12px; font-size:19px; font-weight:700; color:var(--sky); background:var(--gold); border:none; border-radius:14px; cursor:pointer; } .btn:hover { background:var(--lamp); }
+  label { display:block; text-align:left; margin:12px 0; font-size:16px; } label input { width:100%; margin-top:6px; } label span { float:right; color:var(--gold); }
 </style>
 </head>
 <body>
-<div id="hud"></div>
-<div id="help">WASD / mũi tên: đi · Space: nhảy · E: nạp đèn · Q: tỏa sáng · kéo chuột: xoay camera · R: chơi lại</div>
-<div id="msg"><h1 id="msg-title"></h1><p id="msg-body"></p><p>Nhấn <b>R</b> để chơi lại</p></div>
+<div id="hud">
+  <div class="tl"><div id="hud-flames"></div><div id="hud-night"></div></div>
+  <div id="hud-timer"></div>
+  <div id="hud-wind"></div>
+  <div class="tr"><div id="hud-lanterns"></div><div id="hud-score"></div></div>
+  <div id="hud-motes"></div>
+  <div id="hud-prompt"></div>
+  <div id="hud-charm"></div>
+  <div class="br"><div id="cd-dash" class="cd"><span>Lướt<br>Shift</span></div><div id="cd-pulse" class="cd"><span>Tỏa sáng<br>Q</span></div></div>
+  <div id="hud-arrow"></div>
+</div>
+<div id="flash"></div>
+<div id="fps"></div>
+<div id="screen"></div>
 <script type="importmap">{ "imports": { "three": "/node_modules/three/build/three.module.js" } }</script>
 <script type="module" src="/src/render/main.js"></script>
 </body>

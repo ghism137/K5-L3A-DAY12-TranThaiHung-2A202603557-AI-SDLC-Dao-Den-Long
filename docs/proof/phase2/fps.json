@@ -1,0 +1,29 @@
+{
+  "when": "2026-11-20T15:29:35.583Z",
+  "resolution": "1280x720",
+  "machine": "Windows_NT 10.0.26300, 11th Gen Intel(R) Core(TM) i3-1115G4 @ 3.00GHz, 13 GB RAM",
+  "seconds_per_night": 8,
+  "results": [
+    {
+      "night": 1,
+      "fps": 60,
+      "avg": 60,
+      "min": 4,
+      "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009A78) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "night": 2,
+      "fps": 60,
+      "avg": 60,
+      "min": 4,
+      "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009A78) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "night": 3,
+      "fps": 60,
+      "avg": 60,
+      "min": 4,
+      "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009A78) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ]
+}

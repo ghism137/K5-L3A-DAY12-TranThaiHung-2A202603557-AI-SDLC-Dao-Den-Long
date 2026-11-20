@@ -31,7 +31,7 @@ export function parseArgs(argv) {
   for (const req of ["seed", "night", "ticks", "out"]) {
     if (o[req] === undefined) throw new UsageError(`thiếu --${req}`);
   }
-  if (o.night !== 1) throw new UsageError("chỉ hỗ trợ --night 1");
+  if (![1, 2, 3].includes(o.night)) throw new UsageError("--night phải là 1, 2 hoặc 3");
   if (o.ticks < 0) throw new UsageError("--ticks phải >= 0");
   if (o.snapshotEvery < 1) throw new UsageError("--snapshot-every phải >= 1");
   return o;
@@ -53,7 +53,7 @@ function readJson(path, what) {
 
 // frames: đã kiểm tra. Trả về hàm áp frame của tick k lên trạng thái input đang giữ.
 function inputDriver(frames) {
-  const cur = { move: [0, 0], cam_yaw_deg: 0, jump: false, interact: false, pulse: false };
+  const cur = { move: [0, 0], cam_yaw_deg: 0, jump: false, interact: false, pulse: false, dash: false, pause: false };
   let idx = 0;
   return (k) => {
     while (idx < frames.length && frames[idx].tick < k) idx++;
@@ -61,7 +61,7 @@ function inputDriver(frames) {
       const f = frames[idx++];
       if (f.move) cur.move = f.move;
       if ("cam_yaw_deg" in f) cur.cam_yaw_deg = f.cam_yaw_deg;
-      for (const b of ["jump", "interact", "pulse"]) if (b in f) cur[b] = f[b];
+      for (const b of ["jump", "interact", "pulse", "dash", "pause"]) if (b in f) cur[b] = f[b];
     }
     return cur;
   };
@@ -70,7 +70,7 @@ function inputDriver(frames) {
 export function simulate(opts, tuning = loadTuning()) {
   const scenario = opts.scenario ? parseScenario(readJson(opts.scenario, "scenario")) : {};
   const frames = opts.inputs ? parseInputs(readJson(opts.inputs, "inputs")) : [];
-  const game = createGame({ tuning, seed: opts.seed, scenario });
+  const game = createGame({ tuning, seed: opts.seed, night: opts.night, scenario });
   const input = inputDriver(frames);
   const lines = [JSON.stringify(game.snapshot())];
   for (let k = 0; k < opts.ticks; k++) {

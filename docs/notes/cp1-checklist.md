@@ -17,7 +17,7 @@ Cập nhật: 2026-11-20. Bằng chứng sinh bởi `npm run proof` (xem [docs/p
 
 | Bàn giao | Trạng thái | Ghi chú |
 |---|---|---|
-| Game chơi được Đêm 1 từ đầu tới thắng/thua | [~] | Logic thắng/thua đã kiểm bằng headless (c04, c05, c10). Giao diện chạy và chụp được; **chưa có người chơi trọn một ván bằng bàn phím** (xem Chưa đạt) |
+| Game chơi được Đêm 1 từ đầu tới thắng/thua | [~] (người dùng đã chơi thử, nhận xét ổn, hơi giật; đã sửa nội suy, chưa đo lại) | Logic thắng/thua đã kiểm bằng headless (c04, c05, c10). Giao diện chạy và chụp được; **chưa có người chơi trọn một ván bằng bàn phím** (xem Chưa đạt) |
 | README (≤3 lệnh, điều khiển, cách tính điểm) | [x] | [README.md](../../README.md) |
 | `game.contract.json` + headless Test Contract v1.0 | [x] | 7 test contract + 15 case; đúng mã thoát, tick, định dạng |
 | Bằng chứng + ghi chép (giả định, nhật ký AI) | [x] | docs/proof/phase1, docs/notes |
@@ -44,7 +44,7 @@ Cập nhật: 2026-11-20. Bằng chứng sinh bởi `npm run proof` (xem [docs/p
 2. Giả định ❓ (A1 ánh sáng = đom đóm mang, A4 safe_radius chỉ đèn đã sáng, A7 thứ tự thắng/thua) **chưa hỏi trợ giảng**; nếu đáp án khác, sửa tại `src/core/sim.js` và case tương ứng.
 3. Không có `dash`, không có rơi khỏi đảo (`fall_enabled: false`).
 4. Token/chi phí chưa đo, xem ai-log.md.
-5. Chưa commit/tag `phase-1` (chờ duyệt thông điệp commit).
+5. ~~Chưa tag~~ Đã commit `eb4e93f`, tag `phase-1` trỏ đúng commit này (kiểm bằng GitHub API), CI xanh, clone thật từ tag chạy được.
 
 ## Đánh giá nhanh
 - Đạt: lõi headless đúng contract, có mutation test bắt được lỗi giả; hook Stop chặn khi test đỏ (đã thử).

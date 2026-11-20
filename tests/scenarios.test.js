@@ -13,7 +13,7 @@ export function runCase(c, tag = "a") {
   const inp = join(dir, `${c.name}.in.json`);
   const out = join(dir, `${c.name}.${tag}.jsonl`);
   writeFileSync(sc, JSON.stringify(c.scenario));
-  const args = ["--seed", String(c.seed), "--night", "1", "--scenario", sc, "--ticks", String(c.ticks), "--out", out];
+  const args = ["--seed", String(c.seed), "--night", String(c.night ?? 1), "--scenario", sc, "--ticks", String(c.ticks), "--out", out];
   if (c.inputs) {
     writeFileSync(inp, JSON.stringify(c.inputs));
     args.push("--inputs", inp);

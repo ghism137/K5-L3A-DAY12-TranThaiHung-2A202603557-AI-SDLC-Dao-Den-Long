@@ -1,4 +1,4 @@
-﻿name: ci
+name: ci
 on: [push, pull_request]
 jobs:
   test:
@@ -10,4 +10,15 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run proof -- /tmp/proof
-      - run: node src/headless/cli.js --seed 1 --night 1 --ticks 600 --out /tmp/smoke.jsonl && tail -n 1 /tmp/smoke.jsonl
+      - run: npm run mutate
+      - run: node src/headless/cli.js --seed 1 --night 3 --ticks 600 --out /tmp/smoke.jsonl && tail -n 1 /tmp/smoke.jsonl
+  ui:
+    runs-on: ubuntu-latest
+    continue-on-error: true # bot trình duyệt phụ thuộc môi trường đồ họa của runner
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - run: npm run smoke
+        env: { BROWSER: /usr/bin/google-chrome }

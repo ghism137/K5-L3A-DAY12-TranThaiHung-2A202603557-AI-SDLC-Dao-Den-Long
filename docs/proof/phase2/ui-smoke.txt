@@ -1,0 +1,28 @@
+ĐẠT    Menu hiện đầu tiên  (Đảo Đèn Lồng |  | Mây, người giữ đèn nhỏ tuổi, thắp lại ba hòn đảo giữa biển mây. |  | Bắt đầu | Cài đặt |  | WASD/mũi tên đi · Space )
+ĐẠT    Bắt đầu → màn giới thiệu Đêm 1 có lời Ông Đăng
+ĐẠT    Vào chơi, HUD hiện
+        tốc độ mô phỏng: 63 tick/giây (cần 60) · ANGLE (Intel, Intel(R) UHD Graphics (0x00009A78) Direct3D11 vs_5_0 ps_5_0, D3D11)
+ĐẠT    Phím D di chuyển Mây (screen-right = −X)  (Δx=-4.30)
+ĐẠT    Space nhảy (rời mặt đất)
+ĐẠT    Shift lướt (hồi chiêu lướt chạy)
+ĐẠT    Esc → tạm dừng, có menu Tiếp tục/Chơi lại/Cài đặt/Về menu  (Tạm dừng | Tiếp tục | Chơi lại Đêm | Cài đặt | Về menu)
+ĐẠT    Tạm dừng: logic đứng yên hoàn toàn
+ĐẠT    Cài đặt âm lượng/độ nhạy được lưu (localStorage)  ({"volume":0.3,"sensitivity":2})
+ĐẠT    Cài đặt còn nguyên sau khi mở lại game  (volume=30)
+ĐẠT    Tiếp tục: logic chạy lại
+ĐẠT    Chơi lại Đêm từ menu tạm dừng
+ĐẠT    Hết giờ → thua, màn kết quả có 'Chơi lại Đêm này'  (Trời đã sáng... |  | Điểm Đêm 1: 0 |  | Chơi lại Đêm này | Về menu)
+ĐẠT    Chơi lại → giới thiệu lại Đêm 1
+        bot dừng tại (-22.8, 7.5) mang 10, mode playing, st playing, sim 359
+ĐẠT    Nạp đèn cuối → thắng Đêm 1 → màn kết quả 'Đêm kế tiếp'  (score=938 total=938)
+ĐẠT    Điểm Đêm 1 > 0 và cộng vào tổng
+ĐẠT    Đêm kế tiếp → giới thiệu Đêm 2 (Đảo Cau)
+ĐẠT    Thắng Đêm 3 → kết quả 'Đón Bình Minh'  (Đảo đã sáng rực! |  | Điểm Đêm 3: 1058 · Tổng: 1058 |  | Đón Bình Minh | Về menu)
+ĐẠT    Màn Bình Minh hiện tổng điểm  (Bình Minh |  | Ông Đăng: “Ba hòn đảo đã sáng đèn. Cảm ơn cháu, người giữ đèn nhỏ tuổi.” |  | Tổng điểm: 1058 |  | Về menu)
+ĐẠT    HUD: đồng hồ mm:ss đổi sang đỏ khi ≤ 30 s  (0:23 rgb(255, 90, 95))
+ĐẠT    HUD: 3 Ngọn Lửa, thanh đom đóm 10 ô, biểu tượng hồi chiêu Lướt/Tỏa Sáng, đèn k/n, điểm  ({"timerClass":"danger blink","timerColor":"rgb(255, 90, 95)","cells":10,"flames":3,"dash":true,"pulse":true,"lanterns":"🏮 0/5","score":"⭐ 0","timer":"0:23"})
+ĐẠT    HUD: mũi tên chỉ tới đèn chưa sáng khi nó ngoài màn hình
+ĐẠT    HUD: nhắc "E — Nạp ánh sáng (x/10)" khi đứng gần đèn  (E — Nạp ánh sáng (0/10))
+ĐẠT    Không có ngoại lệ JS trong suốt phiên
+
+24/24 đạt.

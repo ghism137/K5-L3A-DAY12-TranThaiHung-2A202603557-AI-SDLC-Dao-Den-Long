@@ -22,7 +22,7 @@ for (const c of cases) {
   const inp = join(d, "inputs.json");
   const out = join(d, "out.jsonl");
   writeFileSync(sc, JSON.stringify(c.scenario, null, 2));
-  const args = ["src/headless/cli.js", "--seed", String(c.seed), "--night", "1", "--scenario", sc, "--ticks", String(c.ticks), "--out", out, "--snapshot-every", String(c.snapshotEvery ?? 10)];
+  const args = ["src/headless/cli.js", "--seed", String(c.seed), "--night", String(c.night ?? 1), "--scenario", sc, "--ticks", String(c.ticks), "--out", out, "--snapshot-every", String(c.snapshotEvery ?? 10)];
   if (c.inputs) {
     writeFileSync(inp, JSON.stringify(c.inputs, null, 2));
     args.push("--inputs", inp);
