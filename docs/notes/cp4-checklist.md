@@ -5,7 +5,7 @@
 - [x] `npm run mutate`: 74 đột biến, 0 sống sót (4 mutant tương đương có giải thích trong `scripts/mutate.mjs`)
 - [x] Hồi quy: 99/99 case headless giống hệt Phase 3 theo sha256 (`docs/proof/phase4/regression.txt`)
 - [x] `npm run smoke`: 57/57 (`ui-smoke.txt`)
-- [x] Soak: crashes 0, 39.5 → 43.3 MB (1.10×)
+- [x] Soak: crashes 0, 42.8 → 43.4 MB; trong Docker Linux 15/15 lần đạt (CI lần đầu đỏ vì RSS, đã sửa bằng MALLOC_ARENA_MAX=1 và khởi động nóng mỗi màn)
 - [x] Benchmark trên máy dev: avg 260.6, p1 low 58.5, p95 7 ms, load 1698 ms, vsync_off true
 - [x] Bản đóng gói giải nén chạy độc lập (máy chủ trả 200, API, headless)
 

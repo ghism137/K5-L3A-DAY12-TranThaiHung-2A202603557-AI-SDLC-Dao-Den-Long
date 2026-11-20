@@ -109,7 +109,7 @@ Mở Chrome/Edge **có cửa sổ 1280×720** (tự lùi về headless nếu kh�
 node --expose-gc scripts/soak.mjs --seed 7 --nights 10 --out soak.json    # hoặc: npm run soak -- --seed 7 --nights 10 --out soak.json
 ```
 
-Chạy headless 10 Đêm liên tiếp trong **một tiến trình** (Đêm 1 → 2 → 3 xoay vòng; Đêm i dùng seed 7 + i) với input ngẫu nhiên theo seed (mỗi 30 tick đổi hướng; mỗi tick: nhảy 5%, lướt 3%, tỏa sáng 2%, tương tác 10%). `mem_start_mb` đo sau khi tải xong Đêm đầu **kèm khởi động nóng một lần** (chạy thử 900 tick trên một game bỏ đi để JIT và heap ổn định), `mem_end_mb` sau khi dựng lại Đêm cuối; cả hai là trung vị 9 mẫu RSS sau `gc()` vì một lần đọc RSS đơn lẻ dao động ±10 MB do hệ điều hành (heap V8 giữ phẳng ~5 MB). Kết quả: [docs/proof/phase4/soak.json](docs/proof/phase4/soak.json): `crashes: 0`, 39.5 → 43.3 MB (1.10×, ngưỡng 1.2×).
+Chạy headless 10 Đêm liên tiếp trong **một tiến trình** (Đêm 1 → 2 → 3 xoay vòng; Đêm i dùng seed 7 + i) với input ngẫu nhiên theo seed (mỗi 30 tick đổi hướng; mỗi tick: nhảy 5%, lướt 3%, tỏa sáng 2%, tương tác 10%). `mem_start_mb` đo sau khi tải xong Đêm đầu **kèm khởi động nóng** (chạy thử 3600 tick cho mỗi màn trên game bỏ đi để JIT và heap ổn định), `mem_end_mb` sau khi dựng lại Đêm cuối; cả hai là trung vị 9 mẫu RSS sau `gc()` vì một lần đọc RSS đơn lẻ dao động ±10 MB do hệ điều hành (heap V8 giữ phẳng ~5 MB). Script tự chạy lại với `--expose-gc` và `MALLOC_ARENA_MAX=1`: trên Linux, glibc cấp nhiều arena cho luồng nền của V8 nên RSS tăng thất thường dù heap JS phẳng (đo trong Docker `node:22`: 3/8 lần vượt 1.2× khi không đặt biến này, 0/15 khi đặt). Kết quả: [docs/proof/phase4/soak.json](docs/proof/phase4/soak.json): `crashes: 0`, 42.8 → 43.4 MB (ngưỡng 1.2×).
 
 ## Kiểm chứng
 

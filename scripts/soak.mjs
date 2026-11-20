@@ -5,9 +5,10 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Cần --expose-gc để đo RSS công bằng: tự chạy lại nếu thiếu cờ này.
-if (typeof globalThis.gc !== "function") {
-  const r = spawnSync(process.execPath, ["--expose-gc", ...process.argv.slice(1)], { stdio: "inherit" });
+// Cần --expose-gc để đo RSS công bằng, và MALLOC_ARENA_MAX=1: trên Linux glibc cấp nhiều arena cho các luồng nền của V8 nên RSS
+// tăng thất thường dù heap JS phẳng (đo trong Docker: 3/8 lần vượt 1.2× nếu không đặt). Thiếu một trong hai thì tự chạy lại.
+if (typeof globalThis.gc !== "function" || process.env.MALLOC_ARENA_MAX !== "1") {
+  const r = spawnSync(process.execPath, ["--expose-gc", ...process.argv.slice(1)], { stdio: "inherit", env: { ...process.env, MALLOC_ARENA_MAX: "1" } });
   process.exit(r.status ?? 1);
 }
 

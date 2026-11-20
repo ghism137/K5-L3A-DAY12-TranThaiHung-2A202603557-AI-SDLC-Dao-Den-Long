@@ -40,13 +40,16 @@ export const stableRssMb = () => {
 };
 const collect = stableRssMb;
 
-// "Tải xong Đêm đầu tiên" gồm cả khởi động nóng một lần (JIT, heap): chạy WARMUP_TICKS tick trên một game bỏ đi
-// (cùng seed, không ảnh hưởng kết quả các Đêm). Nếu không, đo ngay sau khi dựng sẽ bắt nhầm chi phí khởi động nóng là "rò rỉ".
-export const WARMUP_TICKS = 900;
+// "Tải xong Đêm đầu tiên" gồm cả khởi động nóng: chạy mỗi màn (1, 2, 3) WARMUP_TICKS tick trên game bỏ đi (cùng seed, không ảnh hưởng
+// kết quả các Đêm). Nếu không, đo ngay sau khi dựng sẽ bắt nhầm chi phí khởi động nóng là "rò rỉ": heap V8 phẳng (~5 MB) nhưng
+// bộ nhớ native của JIT (TurboFan) và malloc còn tăng sau 900 tick đầu, nhất là trên Linux; `--jitless` thì RSS phẳng hoàn toàn.
+export const WARMUP_TICKS = 3600;
 function warmUp(tuning, seed) {
-  const g = createGame({ tuning, seed, night: 1 });
-  const next = inputStream(seed);
-  for (let i = 0; i < WARMUP_TICKS && g.state === "playing"; i++) g.step(next(i));
+  for (let night = 1; night <= 3; night++) {
+    const g = createGame({ tuning, seed, night });
+    const next = inputStream(seed);
+    for (let i = 0; i < WARMUP_TICKS && g.state === "playing"; i++) g.step(next(i));
+  }
 }
 
 // onNight(i, info) tùy chọn, để CLI in tiến độ. Trả về cả thông tin phụ (ticks, điểm) dùng cho test.

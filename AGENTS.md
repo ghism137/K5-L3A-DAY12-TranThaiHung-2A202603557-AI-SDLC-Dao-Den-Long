@@ -46,7 +46,7 @@ Luật = `game.contract.json` + `docs/notes/assumptions-phaseN.md` + `docs/notes
 - Thắp đèn đẩy Bóng Mực ra khỏi vùng 6 m nên không thể bị chạm cùng tick: đừng thiết kế test mâu thuẫn với luật.
 - Bước 2 trừ dầu (hao + hút) TRƯỚC bước 5 châm dầu: `refuel.fuel` luôn tính sau hao; kỳ vọng test phải tính cả 1 đơn vị hao. Một Bóng `drain` chỉ tồn tại khi đèn đích còn yếu (fuel < 30).
 - Cơ chế dần dần (đẩy ≤ 30 tick): test phải kiểm giữa chừng, không chỉ trạng thái cuối, nếu không đột biến "dịch chuyển tức thời" vẫn qua.
-- Phase 4: đo trước khi tối ưu (benchmark baseline 62–98 FPS, p1 low ~18 do ~1200 draw call và rác mỗi tick); RSS một lần đọc dao động ±10 MB nên soak dùng trung vị sau `gc()` và khởi động nóng; lấy mẫu bộ nhớ tiến trình tốn CPU nên làm ngoài cửa sổ đo FPS.
+- Phase 4: đo trước khi tối ưu (benchmark baseline 62–98 FPS, p1 low ~18 do ~1200 draw call và rác mỗi tick); RSS một lần đọc dao động ±10 MB nên soak dùng trung vị sau `gc()` và khởi động nóng; soak phải chạy thử trên Linux (Docker node:22) vì RSS ở đó khác Windows: dùng MALLOC_ARENA_MAX=1, không nới ngưỡng; lấy mẫu bộ nhớ tiến trình tốn CPU nên làm ngoài cửa sổ đo FPS.
 - Trang Edge tự chèn lỗi (AssistantLoadState): bot UI chỉ đếm exception từ `/src/` hoặc three. Máy chủ trả 413 phải `req.resume()`, không hủy socket.
 - Không bịa số token/chi phí: ghi `/usage` % trước/sau từng phase (ai-log.md), người dùng điền.
 
