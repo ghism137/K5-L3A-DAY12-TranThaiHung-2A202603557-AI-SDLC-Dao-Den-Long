@@ -1,0 +1,1 @@
+{"name":"dao-den-long","version":"1.0.0","private":true,"type":"module","license":"MIT","engines":{"node":">=22"},"scripts":{"start":"node src/server.js","test":"node --test","headless":"node src/headless/cli.js","proof":"node scripts/proof.mjs"},"dependencies":{"three":"^0.187.0"}}
