@@ -1,6 +1,6 @@
 // Cài đặt người chơi, lưu giữa các lần mở game (localStorage).
 const KEY = "ddl.settings.v1";
-const DEFAULTS = { volume: 0.7, sensitivity: 1 };
+const DEFAULTS = { volume: 0.7, sensitivity: 1, colorblind: false };
 
 export function loadSettings() {
   try {
@@ -8,6 +8,7 @@ export function loadSettings() {
     return {
       volume: clamp(raw.volume, 0, 1, DEFAULTS.volume),
       sensitivity: clamp(raw.sensitivity, 0.2, 3, DEFAULTS.sensitivity),
+      colorblind: raw.colorblind === true,
     };
   } catch {
     return { ...DEFAULTS };

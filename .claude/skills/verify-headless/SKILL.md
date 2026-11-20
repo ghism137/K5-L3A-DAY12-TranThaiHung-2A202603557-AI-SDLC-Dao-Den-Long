@@ -10,4 +10,5 @@ description: Chạy kiểm chứng headless của Đảo Đèn Lồng (test, sce
 3. `npm run proof -- docs/proof/phaseN` — chạy CLI thật cho từng case trong `scenarios/cases.mjs`, lưu `out.jsonl` (và `out-run2.jsonl` cho case tất định), sinh `REPORT.md` kèm sha256. Thoát mã 1 nếu có case chưa đạt.
 4. Case mới: thêm vào `scenarios/cases.mjs` (tên, yêu cầu, scenario, inputs, `check`, tùy chọn `night`, `snapshotEvery`, `determinism`). Dùng `mk()` để cô lập (không sinh ngẫu nhiên/gió/bùa). Không bao giờ viết `check` luôn trả `[]`. Giữ `snapshotEvery` lớn nếu chỉ cần vài mốc để file bằng chứng nhỏ.
 5. Không sửa tay file trong `docs/proof/`. Chỉ sinh lại bằng lệnh trên. Bằng chứng phải khớp mã ở tag: chạy lại ở đúng commit rồi so `sha256` trong REPORT.md.
-6. Phase sau thay luật: cập nhật case cũ kèm lý do, không tắt. Chạy lại toàn bộ.
+6. Phase sau thay luật: cập nhật case cũ kèm lý do, không tắt. Chạy lại toàn bộ. Ghi từng test bị thay vào docs/notes/cpN-checklist.md (bảng Thay đổi test) và breaking changes vào CHANGELOG.md.
+7. Luật có cơ chế dần dần (đẩy, hao, hút): thêm case snapshot mỗi tick quanh biên (±1 tick) và một đột biến cho từng biên; mutant tương đương phải có giải thích trong script.

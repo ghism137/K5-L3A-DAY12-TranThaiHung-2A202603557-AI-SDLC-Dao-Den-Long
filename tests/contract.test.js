@@ -18,17 +18,18 @@ const file = (name, text) => {
 };
 const rows = (p) => readFileSync(p, "utf8").trim().split("\n").map((l) => JSON.parse(l));
 
-test("game.contract.json v1.1: đủ khóa và đúng số chuẩn của Ticket-02", () => {
-  assert.equal(contract.contract_version, "1.1");
+test("game.contract.json v1.2: đủ khóa và đúng số chuẩn của Ticket-02 + Ticket-03", () => {
+  assert.equal(contract.contract_version, "1.2");
   for (const k of ["team", "build_cmd", "run_cmd", "headless_cmd"]) assert.equal(typeof contract[k], "string");
   const std = {
     player_speed: 6, carry_capacity: 10, lantern_cost: 10, lantern_count_night1: 5, pickup_radius: 1, interact_radius: 2,
-    pulse_cost: 3, pulse_radius: 5, night1_duration_s: 300, night2_duration_s: 330, night3_duration_s: 360, flames: 3,
+    pulse_cost: 3, pulse_radius: 5, night1_duration_s: 240, night2_duration_s: 270, night3_duration_s: 300, flames: 3,
     invuln_s: 1.5, hit_drop_ratio: 0.5, pulse_stun_s: 2, pulse_push_m: 4, pulse_cooldown_s: 3, safe_radius: 6,
     shade_speed: 4, shade_hit_radius: 1, dash_speed: 14, dash_duration_s: 0.2, dash_cooldown_s: 1.5, fall_enabled: true,
+    fuel_max: 100, fuel_decay_per_s: 1.0, fuel_per_mote: 10, relight_cost: 5, win_ratio: 0.6, drain_per_s: 5, low_fuel_threshold: 30, capacity_max: 20,
   };
   for (const [k, v] of Object.entries(std)) assert.equal(contract.tuning[k], v, `tuning.${k}`);
-  assert.deepEqual(contract.tuning.score, { per_mote: 10, per_lantern: 100, per_stun: 5, per_second_left: 2, per_flame_left: 50 });
+  assert.deepEqual(contract.tuning.score, { per_mote: 5, per_lantern: 100, per_relight: 40, per_stun: 5, per_stun_drain: 15, per_lit_lantern_dawn: 50, per_second_left: 0, per_flame_left: 50 });
 });
 
 test("game đọc tuning từ contract (không lệch giữa khai báo và thực tế)", () => {
@@ -52,8 +53,10 @@ test("CLI: chạy bình thường, mã 0, JSONL v1.1 đúng định dạng", () 
   assert.deepEqual(rs.at(-1), { type: "end", ticks: 100, state: "playing", score: 0 });
   const s = rs[0];
   for (const k of ["type", "tick", "sim_tick", "state", "night", "time_left_s", "score", "wind", "player", "lanterns", "shades", "motes_active", "motes", "drifters", "charms"]) assert.ok(k in s, `snapshot thiếu ${k}`);
-  for (const k of ["pos", "vel", "grounded", "invuln", "dash_cd_s", "pulse_cd_s", "charm_s", "flames", "carried"]) assert.ok(k in s.player, `player thiếu ${k}`);
+  for (const k of ["pos", "vel", "grounded", "invuln", "dash_cd_s", "pulse_cd_s", "charm_s", "flames", "carried", "capacity"]) assert.ok(k in s.player, `player thiếu ${k}`);
   assert.deepEqual(Object.keys(s.wind), ["active", "dir_deg"]);
+  assert.deepEqual(Object.keys(s.lanterns[0]), ["id", "pos", "lit", "deposited", "fuel", "ever_lit", "relit_count"]);
+  assert.deepEqual([s.lanterns[0].fuel, s.lanterns[0].ever_lit, s.lanterns[0].relit_count, s.player.capacity], [0, false, 0, 10]);
   assert.deepEqual(Object.keys(s.motes[0]), ["id", "pos", "kind", "ttl_s"]);
   assert.equal(s.motes.length, s.motes_active);
   assert.equal(rs.find((x) => x.type === "event").name, "night_start");
@@ -91,13 +94,15 @@ test("CLI: scenario sai định dạng -> mã 2 (kể cả các trường mới 
   const bad = [
     { motes: "nope" }, { lanterns: [{ id: "L9" }] }, { player: { pos: [1, 2] } }, { time_left_s: -1 },
     { shades: [{ pos: [1, 0, 1], state: "flying" }] }, { drifters: [{ pos: [1, 0, 1], state: "idle", stolen: -1 }] },
+    { lanterns: [{ id: "L1", fuel: -1 }] }, { lanterns: [{ id: "L1", fuel: "100" }] }, { lanterns: [{ id: "L1", ever_lit: "yes" }] },
+    { player: { successful_lights: -1 } }, { shades: [{ pos: [1, 0, 1], target_lantern_id: 5 }] }, { shades: [{ pos: [1, 0, 1], state: "drain", target_lantern_id: "L9" }] },
     { charms: [{ id: "C9" }] }, { player: { dash_cd_ticks: 1.5 } }, { random_drifters: "yes" }, { wind_enabled: 1 },
   ];
   for (const sc of bad) {
     const r = run(["--seed", "1", "--night", "2", "--ticks", "5", "--scenario", file("s.json", JSON.stringify(sc)), "--out", out]);
     assert.equal(r.status, 2, JSON.stringify(sc));
   }
-  const ok = { player: { pos: [0, 0, 0], invuln_ticks: 3, dash_cd_ticks: 2, pulse_cd_ticks: 1, charm_ticks: 5 }, shades: [{ pos: [1, 0, 1], state: "stunned", state_ticks_left: 9 }], drifters: [], charms: [], random_drifters: false, wind_enabled: false };
+  const ok = { player: { pos: [0, 0, 0], invuln_ticks: 3, dash_cd_ticks: 2, pulse_cd_ticks: 1, charm_ticks: 5, successful_lights: 2 }, lanterns: [{ id: "L1", lit: true, fuel: 12.5, ever_lit: true }], shades: [{ pos: [1, 0, 1], state: "stunned", state_ticks_left: 9 }, { pos: [1, 0, 1], state: "drain", target_lantern_id: "L1" }], drifters: [], charms: [], random_drifters: false, wind_enabled: false };
   assert.equal(run(["--seed", "1", "--night", "2", "--ticks", "5", "--scenario", file("ok.json", JSON.stringify(ok)), "--out", out]).status, 0);
 });
 
@@ -126,4 +131,15 @@ test("hiệu năng: một Đêm đầy đủ (21.600 tick) headless ≤ 30 s, m�
     assert.ok(dt <= 30, `Đêm ${n} mất ${dt}s`);
     console.log(`# Đêm ${n}: ${end.ticks} tick trong ${dt.toFixed(2)} s`);
   }
+});
+
+test("Contract v1.2: sự kiện và trạng thái mới xuất hiện đúng tên", () => {
+  const out = join(dir, "v12.jsonl");
+  const sc = file("v12.json", JSON.stringify({ random_motes: false, random_shades: false, random_drifters: false, wind_enabled: false, motes: [], shades: [{ id: "S1", pos: [0, 0, 24], state: "drain", target_lantern_id: "L1" }], lanterns: [{ id: "L1", pos: [0, 0, 25], lit: true, fuel: 0.1 }], player: { pos: [-25, 0, -25], flames: 99 } }));
+  assert.equal(run(["--seed", "1", "--night", "1", "--ticks", "200", "--scenario", sc, "--snapshot-every", "50", "--out", out]).status, 0);
+  const rs = rows(out);
+  const names = new Set(rs.filter((x) => x.type === "event").map((x) => x.name));
+  assert.ok(names.has("lantern_out"), "thiếu lantern_out");
+  assert.ok(rs.some((x) => x.type === "snapshot" && x.shades.some((s) => s.state === "drain")), "snapshot phải có trạng thái drain");
+  assert.equal(rs.filter((x) => x.type === "event" && x.name === "game_over").length, 0);
 });

@@ -18,6 +18,8 @@
   .tr { position:absolute; top:14px; right:18px; text-align:right; font-size:24px; line-height:1.5; } #hud-score { color:var(--gold); font-weight:700; }
   #hud-motes { position:absolute; bottom:26px; left:50%; transform:translateX(-50%); display:flex; gap:6px; padding:8px 12px; background:rgba(14,20,48,.55); border:2px solid var(--gold); border-radius:20px; }
   #hud-motes i { width:18px; height:18px; border-radius:50%; background:rgba(255,246,194,.12); border:1px solid rgba(242,193,78,.5); }
+  #hud-motes .cnt { margin-left:6px; font-weight:700; font-size:15px; align-self:center; }
+  body.cb { --danger:#FFFFFF; } body.cb #hud-timer.danger::before { content:"⚠ "; } body.cb #flash { background:#FFFFFF; }
   #hud-motes i.on { background:#FFF6C2; box-shadow:0 0 10px 3px #FFE58A; border-color:#FFE58A; }
   #hud-prompt { position:absolute; bottom:86px; left:50%; transform:translateX(-50%); font-size:20px; background:rgba(14,20,48,.6); padding:4px 14px; border-radius:14px; } #hud-prompt:empty { display:none; }
   .br { position:absolute; bottom:22px; right:22px; display:flex; gap:12px; align-items:flex-end; }

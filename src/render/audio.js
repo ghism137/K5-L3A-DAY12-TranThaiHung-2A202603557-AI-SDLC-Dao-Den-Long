@@ -50,6 +50,9 @@ export function createAudio(settings) {
     charm: () => [700, 900, 1200].forEach((f, i) => tone(f, 0.25, "triangle", 0.12, i * 0.07)),
     steal: () => tone(600, 0.3, "sawtooth", 0.1, 0, 200),
     ui: () => tone(660, 0.07, "triangle", 0.08),
+    out: () => [330, 262, 196].forEach((f, i) => tone(f, 0.5, "triangle", 0.12, i * 0.12)),
+    refuel: () => tone(740, 0.18, "triangle", 0.12, 0, 520),
+    drain: () => tone(90, 0.25, "sawtooth", 0.07, 0, 60),
   };
 
   // Nhạc nền: nốt ngũ cung nhẹ nhàng lặp lại, đệm trầm.

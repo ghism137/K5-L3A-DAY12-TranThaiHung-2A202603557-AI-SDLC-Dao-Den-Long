@@ -1,6 +1,6 @@
 // Dựng và vẽ thế giới 3D (Three.js). Chỉ ĐỌC trạng thái từ src/core, không đổi luật chơi.
 import * as THREE from "three";
-import { PAL, ambientIntensity } from "./palette.js";
+import { PAL, palFor, ambientIntensity } from "./palette.js";
 import { TPS, windAt } from "../core/sim.js";
 
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -40,6 +40,9 @@ export function createWorld() {
   const ambient = new THREE.AmbientLight(0xffffff, ambientIntensity(0, 1));
   scene.add(ambient);
   const glowTex = glowTexture();
+  let pal = PAL;
+  const edgeMats = new Set(); // vật liệu viền/mắt Bóng Mực: đổi màu khi bật chế độ mù màu
+  const beams = []; // tia hút dầu của Bóng Mực đang drain
 
   // sao + biển mây (cố định cho mọi Đêm)
   const starPos = [];
@@ -188,8 +191,21 @@ export function createWorld() {
       zone.rotation.x = -Math.PI / 2;
       zone.position.y = 0.06;
       g.add(lamp, core, halo, zone);
+      // thanh dầu trên đèn đang sáng + vết rách giấy trên đèn tắt (phân biệt không cần màu)
+      const barBg = new THREE.Mesh(new THREE.PlaneGeometry(2.9, 0.42), basic(0x000000, { transparent: true, opacity: 0.6, fog: false, depthTest: false }));
+      const barFill = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 0.3), basic(pal.gold, { fog: false, depthTest: false }));
+      const bar = new THREE.Group();
+      bar.add(barBg, barFill);
+      bar.position.y = 4.7;
+      bar.visible = false;
+      bar.renderOrder = 10;
+      const torn = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.55, 3), basic(0x15151c));
+      torn.position.set(0.4, 3.5, 0.5);
+      torn.rotation.z = 0.7;
+      torn.visible = false;
+      g.add(bar, torn);
       levelGroup.add(g);
-      lanternMeshes.set(l.id, { group: g, lamp, core, halo, zone });
+      lanternMeshes.set(l.id, { group: g, lamp, core, halo, zone, bar, barFill, torn });
     }
     for (const c of game.charms) {
       const g = new THREE.Group();
@@ -215,12 +231,15 @@ export function createWorld() {
     g.add(h);
     return g;
   };
-  const eyeMat = basic(PAL.shadeEdge);
+  const eyeMat = basic(pal.shadeEdge);
+  edgeMats.add(eyeMat);
   const makeShade = () => {
     const g = new THREE.Group();
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.78, 18, 14), basic(PAL.shadeBody));
     body.scale.set(1, 1.25, 1);
-    const outline = new THREE.Mesh(new THREE.SphereGeometry(0.78, 18, 14), basic(PAL.shadeEdge, { side: THREE.BackSide }));
+    const outlineMat = basic(pal.shadeEdge, { side: THREE.BackSide });
+    edgeMats.add(outlineMat);
+    const outline = new THREE.Mesh(new THREE.SphereGeometry(0.78, 18, 14), outlineMat);
     outline.scale.set(1.13, 1.38, 1.13);
     for (const sx of [-0.27, 0.27]) {
       const eye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), eyeMat);
@@ -303,6 +322,28 @@ export function createWorld() {
       m.scale.setScalar(d.state === "flee" && d.stolen > 0 ? 1.15 : 1);
     }
 
+    // tia hút dầu: Bóng Mực đang drain nối tới đèn
+    let usedBeams = 0;
+    for (const m of shadeMeshes.values()) {
+      const s = m.userData.item;
+      const ld = s.state === "drain" ? game.lanterns.find((x) => x.id === s.target) : null;
+      if (!ld) continue;
+      let b = beams[usedBeams++];
+      if (!b) {
+        b = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), new THREE.LineBasicMaterial({ color: pal.shadeEdge, fog: false }));
+        b.frustumCulled = false;
+        scene.add(b);
+        beams.push(b);
+      }
+      const pos = b.geometry.attributes.position;
+      pos.setXYZ(0, m.position.x, m.position.y, m.position.z);
+      pos.setXYZ(1, ld.x, ld.y + 3.5, ld.z);
+      pos.needsUpdate = true;
+      b.material.color.setHex(pal.shadeEdge);
+      b.visible = true;
+    }
+    for (let i = usedBeams; i < beams.length; i++) beams[i].visible = false;
+
     // đèn lồng
     let lit = 0;
     const litList = [];
@@ -312,12 +353,27 @@ export function createWorld() {
         lit++;
         litList.push(l);
       }
-      const warm = l.lit ? 1 : l.deposited / tu.lantern_cost;
+      const cost = l.everLit ? tu.relight_cost : tu.lantern_cost;
+      const warm = l.lit ? 1 : l.deposited / cost;
+      const maxU = tu.fuel_max * 60;
+      const low = l.lit && l.fuel < tu.low_fuel_threshold * 60;
+      const blink = !low || Math.floor(t * 2) % 2 === 0; // fuel < 30: đèn và thanh dầu nhấp nháy chậm 1 Hz
       m.lamp.material.color.setHex(l.lit ? PAL.lanternLit : warm > 0 ? 0x8c7a5a : PAL.lanternOff);
-      m.core.visible = l.lit;
+      m.lamp.scale.y = l.lit ? 1 : 0.8; // đèn tắt bị xẹp 20%
+      m.torn.visible = !l.lit; // giấy có vết rách
+      m.lamp.visible = blink;
+      m.core.visible = l.lit && blink;
       m.core.scale.setScalar(1 + Math.sin(t * 5 + l.x) * 0.06);
-      m.halo.material.opacity = l.lit ? 0.75 : 0;
-      m.zone.material.opacity = l.lit ? 0.4 : 0;
+      m.halo.material.opacity = l.lit && blink ? 0.25 + 0.5 * Math.max(0.2, l.fuel / maxU) : 0;
+      m.zone.material.opacity = l.lit && !low ? 0.4 : 0; // fuel < 30 mất vùng an toàn
+      const frac = Math.max(0, l.fuel / maxU);
+      m.bar.visible = l.lit && blink;
+      if (m.bar.visible) {
+        m.barFill.scale.x = Math.max(0.001, frac);
+        m.barFill.position.x = -(1 - frac) * 1.35;
+        m.barFill.material.color.setHex(low ? pal.danger : pal.gold);
+        m.bar.lookAt(camera.position);
+      }
     }
     litList.sort((a, b) => Math.hypot(a.x - px, a.z - pz) - Math.hypot(b.x - px, b.z - pz));
     lanternLights.forEach((light, i) => {
@@ -381,5 +437,10 @@ export function createWorld() {
     return lit;
   }
 
-  return { renderer, camera, load, draw, project, pulseFlash, scene };
+  function setColorblind(on) {
+    pal = palFor(on);
+    for (const m of edgeMats) m.color.setHex(pal.shadeEdge);
+  }
+
+  return { renderer, camera, load, draw, project, pulseFlash, scene, setColorblind, palette: () => pal };
 }

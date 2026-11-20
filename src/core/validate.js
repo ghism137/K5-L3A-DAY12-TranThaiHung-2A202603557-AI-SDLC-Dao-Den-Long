@@ -48,7 +48,7 @@ export function parseScenario(obj) {
     if (!isObj(p)) fail("player phải là object");
     sc.player = {};
     if ("pos" in p) sc.player.pos = vec(p.pos, "player.pos");
-    for (const k of ["carried", "flames", "invuln_ticks", "dash_cd_ticks", "pulse_cd_ticks", "charm_ticks"]) {
+    for (const k of ["carried", "flames", "invuln_ticks", "dash_cd_ticks", "pulse_cd_ticks", "charm_ticks", "successful_lights"]) {
       if (k in p) {
         optNat(p, k, "player");
         sc.player[k] = p[k];
@@ -72,7 +72,8 @@ export function parseScenario(obj) {
       if ("id" in s && typeof s.id !== "string") fail(`shades[${i}].id phải là chuỗi`);
       if ("state" in s && !SHADE_STATES.includes(s.state)) fail(`shades[${i}].state phải thuộc ${SHADE_STATES.join("|")}`);
       optNat(s, "state_ticks_left", `shades[${i}]`);
-      return { id: s.id, pos: vec(s.pos, `shades[${i}].pos`, true), state: s.state, state_ticks_left: s.state_ticks_left };
+      if ("target_lantern_id" in s && typeof s.target_lantern_id !== "string") fail(`shades[${i}].target_lantern_id phải là chuỗi`);
+      return { id: s.id, pos: vec(s.pos, `shades[${i}].pos`, true), state: s.state, state_ticks_left: s.state_ticks_left, target_lantern_id: s.target_lantern_id };
     });
   }
   if ("drifters" in obj) {
@@ -104,6 +105,14 @@ export function parseScenario(obj) {
       if ("lit" in l) {
         if (typeof l.lit !== "boolean") fail(`lanterns[${i}].lit phải là boolean`);
         o.lit = l.lit;
+      }
+      if ("fuel" in l) {
+        if (!isNum(l.fuel) || l.fuel < 0) fail(`lanterns[${i}].fuel phải là số >= 0`);
+        o.fuel = l.fuel;
+      }
+      if ("ever_lit" in l) {
+        if (typeof l.ever_lit !== "boolean") fail(`lanterns[${i}].ever_lit phải là boolean`);
+        o.ever_lit = l.ever_lit;
       }
       if ("deposited" in l) {
         optNat(l, "deposited", `lanterns[${i}]`);

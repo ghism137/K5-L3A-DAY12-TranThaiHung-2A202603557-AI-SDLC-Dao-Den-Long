@@ -25,3 +25,7 @@ export const css = (hex) => "#" + hex.toString(16).padStart(6, "0");
 
 // Ánh sáng môi trường tăng theo tiến độ: 0.15 + 0.55 × (đèn sáng / tổng đèn)
 export const ambientIntensity = (lit, total) => 0.15 + 0.55 * (total ? lit / total : 0);
+
+// Chế độ "Bảng màu dễ phân biệt" (Ticket-03): viền/mắt Bóng Mực #00B3FF, cảnh báo UI #FFFFFF (kèm biểu tượng ⚠)
+export const PAL_CB = { ...PAL, shadeEdge: 0x00b3ff, danger: 0xffffff };
+export const palFor = (colorblind) => (colorblind ? PAL_CB : PAL);

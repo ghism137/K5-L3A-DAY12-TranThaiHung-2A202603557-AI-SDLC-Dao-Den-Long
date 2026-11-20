@@ -26,6 +26,8 @@ export const R = {
   pulsePushTicks: 15,
 
   shadeY: 1.0,
+  drainReach: 2, // cách đèn yếu <= 2 m (XZ) thì chuyển drain
+  drainChaseDist: 6, // Mây vào trong 6 m thì drain -> chase
   shadeSpawningTicks: 30,
   shadeWanderSpeed: 2,
   shadeWanderReroll: 120,
@@ -42,5 +44,5 @@ export const R = {
   wind: { every: 1800, dur: 300, warn: 120, speed: 2 },
 };
 
-export const SHADE_STATES = ["spawning", "wander", "chase", "recoil", "stunned"];
+export const SHADE_STATES = ["spawning", "wander", "chase", "recoil", "stunned", "drain"];
 export const DRIFTER_STATES = ["idle", "chase", "flee"];

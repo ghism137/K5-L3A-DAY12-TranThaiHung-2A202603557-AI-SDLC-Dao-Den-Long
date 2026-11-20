@@ -2,9 +2,9 @@
 import { css, PAL } from "./palette.js";
 
 export const NIGHT_INTRO = {
-  1: { name: "Đảo Bến", text: "Cháu à, sương đen đã nuốt hết đèn trên đảo Bến. Hãy gom đom đóm, thắp lại năm ngọn đèn lồng lớn. Nhớ nhé: Bóng Mực rất sợ ánh đèn." },
-  2: { name: "Đảo Cau", text: "Hai hòn đảo, một cây cầu tre không lan can. Bục nhảy sẽ đưa cháu sang đảo bên kia. Coi chừng Gió Lạc, nó thích cướp đom đóm của cháu lắm đấy." },
-  3: { name: "Đảo Chuông", text: "Đảo Chuông có ba tầng và một tháp chuông cũ. Cứ nửa phút lại có một cơn gió mạnh, hãy bám chắc. Bùa Gió màu đỏ sẽ giúp cháu chạy nhanh hơn." },
+  1: { name: "Đảo Bến", text: "Cháu à, sương đen đã nuốt hết đèn trên đảo Bến. Hãy thắp lại các đèn lồng, nhưng nhớ: đèn cạn dầu sẽ tắt. Giữ cho ít nhất 3 trong 5 ngọn còn sáng tới bình minh, và châm dầu bằng đom đóm khi đèn yếu. Bóng Mực thích hút dầu những ngọn đèn sắp tắt." },
+  2: { name: "Đảo Cau", text: "Hai hòn đảo, một cây cầu tre không lan can. Bục nhảy sẽ đưa cháu sang đảo bên kia. Cần ít nhất 4 trong 6 ngọn đèn sáng khi trời rạng. Coi chừng Gió Lạc, nó thích cướp đom đóm của cháu lắm đấy." },
+  3: { name: "Đảo Chuông", text: "Đảo Chuông có ba tầng và một tháp chuông cũ. Cần ít nhất 5 trong 7 ngọn đèn còn sáng tới bình minh. Cứ nửa phút lại có một cơn gió mạnh, hãy bám chắc. Bùa Gió màu đỏ sẽ giúp cháu chạy nhanh hơn." },
 };
 
 const $ = (id) => document.getElementById(id);
@@ -44,6 +44,7 @@ export function createUI({ settings, onSettings, handlers }) {
       `<h2>Cài đặt</h2>
        <label>Âm lượng <span id="v-val">${Math.round(settings.volume * 100)}%</span><input id="s-vol" type="range" min="0" max="100" value="${Math.round(settings.volume * 100)}"></label>
        <label>Độ nhạy chuột <span id="s-val">${settings.sensitivity.toFixed(1)}×</span><input id="s-sens" type="range" min="2" max="30" value="${Math.round(settings.sensitivity * 10)}"></label>
+       <label class="check"><input id="s-cb" type="checkbox" ${settings.colorblind ? "checked" : ""}> Bảng màu dễ phân biệt (chế độ mù màu)</label>
        <p class="hint">Cài đặt được lưu lại cho lần mở game sau.</p>
        ${btn("back", "Quay lại")}`,
       (root) => {
@@ -55,6 +56,10 @@ export function createUI({ settings, onSettings, handlers }) {
         root.querySelector("#s-sens").addEventListener("input", (e) => {
           settings.sensitivity = e.target.value / 10;
           root.querySelector("#s-val").textContent = `${settings.sensitivity.toFixed(1)}×`;
+          onSettings(settings);
+        });
+        root.querySelector("#s-cb").addEventListener("change", (ev) => {
+          settings.colorblind = ev.target.checked;
           onSettings(settings);
         });
         on(root, "back", back);
@@ -90,8 +95,15 @@ export function createUI({ settings, onSettings, handlers }) {
       );
     },
     result(win, info) {
+      const title = win ? "Bình minh! Đảo vẫn sáng" : info.reason === "dawn" ? "Trời đã sáng..." : "Ngọn lửa đã tắt...";
+      const why = win
+        ? `Giữ được ${info.lit}/${info.n} đèn tới bình minh (cần ≥ ${info.need}).`
+        : info.reason === "dawn"
+          ? `Trời sáng mà chỉ còn ${info.lit}/${info.n} đèn sáng, cần ≥ ${info.need}.`
+          : "Mây đã hết Ngọn Lửa.";
       showScreen(
-        `<h1 class="${win ? "good" : "bad"}">${win ? "Đảo đã sáng rực!" : info.reason === "dawn" ? "Trời đã sáng..." : "Ngọn lửa đã tắt..."}</h1>
+        `<h1 class="${win ? "good" : "bad"}">${title}</h1>
+         <p class="sub">${why}</p>
          <p class="sub">Điểm Đêm ${info.night}: <b>${info.score}</b>${win ? ` · Tổng: <b>${info.total}</b>` : ""}</p>
          ${win ? btn("next", info.night < 3 ? `Đêm kế tiếp` : "Đón Bình Minh") : btn("retry", "Chơi lại Đêm này")}${btn("menu", "Về menu")}`,
         (root) => {
@@ -121,8 +133,9 @@ export function createUI({ settings, onSettings, handlers }) {
       );
     },
 
-    flash(color = PAL.danger) {
-      el.flash.style.background = css(color);
+    flash(color) {
+      const cb = document.body.classList.contains("cb");
+      el.flash.style.background = css(color ?? (cb ? 0xffffff : PAL.danger));
       el.flash.style.opacity = "0.45";
       requestAnimationFrame(() => requestAnimationFrame(() => (el.flash.style.opacity = "0")));
     },
@@ -138,9 +151,11 @@ export function createUI({ settings, onSettings, handlers }) {
       el.timer.classList.toggle("danger", left <= 30);
       el.timer.classList.toggle("blink", left <= 30 && Math.floor(left * 2) % 2 === 0);
       const lit = game.lanterns.filter((l) => l.lit).length;
-      set("lanterns", el.lanterns, `🏮 ${lit}/${game.lanterns.length}`);
+      const need = Math.ceil(tu.win_ratio * game.lanterns.length - 1e-9);
+      set("lanterns", el.lanterns, `🏮 ${lit}/${game.lanterns.length} <small>cần ≥ ${need}</small>`);
       set("score", el.score, `⭐ ${extra.total + game.score}`);
-      set("motes", el.motes, Array.from({ length: tu.carry_capacity }, (_, i) => `<i class="${i < p.carried ? "on" : ""}"></i>`).join(""));
+      const cap = game.capacity();
+      set("motes", el.motes, Array.from({ length: cap }, (_, i) => `<i class="${i < p.carried ? "on" : ""}"></i>`).join("") + `<span class="cnt">${p.carried}/${cap}</span>`);
       const dashFrac = p.charm > 0 ? 0 : Math.min(1, p.dashCd / Math.round(tu.dash_cooldown_s * 60));
       const pulseFrac = Math.min(1, p.pulseCd / Math.round(tu.pulse_cooldown_s * 60));
       el.dash.style.setProperty("--p", `${Math.round(dashFrac * 100)}%`);
@@ -149,11 +164,11 @@ export function createUI({ settings, onSettings, handlers }) {
       set("charm", el.charm, p.charm > 0 ? `<b>Bùa Gió</b> ${Math.ceil(p.charm / 60)}s` : "");
       set("wind", el.wind, extra.windWarning ? "🍃 Gió sắp nổi!" : extra.windActive ? "🍃 Gió mạnh!" : "");
 
-      // nhắc nạp đèn khi đứng trong 2 m của đèn chưa sáng gần nhất
+      // nhắc khi đứng trong 2 m của đèn nhận được (chưa sáng, hoặc sáng chưa đầy dầu), đúng thứ tự chọn của luật
       const near = game.lanterns
-        .filter((l) => !l.lit && Math.hypot(l.x - p.x, l.z - p.z) <= tu.interact_radius)
+        .filter((l) => (!l.lit || l.fuel < tu.fuel_max * 60) && Math.hypot(l.x - p.x, l.z - p.z) <= tu.interact_radius)
         .sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0];
-      set("prompt", el.prompt, near ? `<b>E</b> — Nạp ánh sáng (${near.deposited}/${tu.lantern_cost})` : "");
+      set("prompt", el.prompt, near ? (near.lit ? `<b>E</b> — Châm dầu (${Math.round(near.fuel / 60)}/${tu.fuel_max})` : `<b>E</b> — Nạp ánh sáng (${near.deposited}/${near.everLit ? tu.relight_cost : tu.lantern_cost})`) : "");
 
       // mũi tên chỉ tới đèn chưa sáng gần nhất khi nó nằm ngoài màn hình
       const target = game.lanterns

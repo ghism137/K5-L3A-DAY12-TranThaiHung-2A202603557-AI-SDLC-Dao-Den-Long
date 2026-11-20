@@ -18,7 +18,6 @@ const mutants = [
   [S, "dx += (R.wind.speed * Math.cos", "dx += (R.wind.speed * 1.1 * Math.cos", "gió 2.2 m/s"],
   [S, "const dropped = Math.floor(p.carried * tu.hit_drop_ratio);", "const dropped = Math.ceil(p.carried * tu.hit_drop_ratio);", "rơi làm tròn lên"],
   [S, "if (e.jump && p.grounded && !p.launched) p.vy = R.jumpSpeed;", "if (e.jump && !p.launched) p.vy = R.jumpSpeed;", "nhảy trên không"],
-  [S, "else if (g.lanterns.every((l) => l.lit)) {", "else if (g.remaining > 0 && g.lanterns.every((l) => l.lit)) {", "không thắng đúng tick hết giờ"],
   [S, "(s - R.shadeFirstTick) % level.shades.interval === 0", "(s - R.shadeFirstTick) % (level.shades.interval + 1) === 0", "lịch sinh Bóng Mực lệch"],
   [S, "if (len > 1) {", "if (false) {", "không chuẩn hóa move"],
   [S, "const tick = g.ticks + 1;", "const tick = g.ticks;", "tick sự kiện lệch 1"],
@@ -28,6 +27,32 @@ const mutants = [
   [S, "if (p.invuln > 0 || hitDone) continue;", "if (p.invuln > 0) continue;", "bỏ hitDone", true], // tương đương: invuln > 0 ngay sau hit đầu
   [T, "if (hn !== null && hn > y + R.stepUp) {", "if (false) {", "vách đứng không chặn"],
   [T, "if (y < t.y1 && Math.hypot(nx - t.x, nz - t.z) < t.r", "if (false && Math.hypot(nx - t.x, nz - t.z) < t.r", "tháp không chặn"],
+  // ---- Phase 3 (Ticket-03): nhiên liệu, hút dầu, luật thắng bình minh ----
+  [S, "for (const l of g.lanterns) if (l.lit) l.fuel -= tu.fuel_decay_per_s;", "for (const l of g.lanterns) if (l.lit) l.fuel -= tu.fuel_decay_per_s * 2;", "hao dầu gấp đôi"],
+  [S, "l.fuel -= tu.drain_per_s;", "l.fuel -= 1;", "hút dầu 1/s thay vì 5/s"],
+  [S, "g.lanterns.filter((l) => l.lit && l.fuel >= lowU)", "g.lanterns.filter((l) => l.lit && l.fuel > lowU)", "vùng an toàn mất ở đúng 30"],
+  [S, "const weak = g.lanterns.filter((l) => l.lit && l.fuel < lowU);", "const weak = g.lanterns.filter((l) => l.lit && l.fuel <= lowU);", "đèn yếu tính cả đúng 30"],
+  [S, "best.everLit ? tu.relight_cost : tu.lantern_cost", "best.everLit ? tu.lantern_cost : tu.relight_cost", "chi phí thắp lại bị đảo"],
+  [S, "Math.ceil((maxU - best.fuel) / perMoteU)", "Math.floor((maxU - best.fuel) / perMoteU)", "châm dầu làm tròn xuống"],
+  [S, "Math.ceil(tu.win_ratio * g.lanterns.length - 1e-9)", "Math.floor(tu.win_ratio * g.lanterns.length - 1e-9)", "ngưỡng thắng làm tròn xuống"],
+  [S, "if (lit.length >= need) {", "if (lit.length > need) {", "ngưỡng thắng nghiêm ngặt"],
+  [S, "if (l.lit && l.fuel <= 0) {", "if (l.lit && l.fuel < 0) {", "đèn hết dầu đúng 0 không tắt"],
+  [S, "tu.carry_capacity + 2 * g.successful", "tu.carry_capacity + 1 * g.successful", "sức chứa tăng 1 thay vì 2"],
+  [S, 'g.score += sh.state === "drain" ? tu.score.per_stun_drain : tu.score.per_stun;', "g.score += tu.score.per_stun;", "stun Bóng drain không có thưởng"],
+  [S, 'if (sh.stun > 0 && --sh.stun === 0) sh.state = "wander";', 'if (sh.stun > 0 && --sh.stun === 0) sh.state = "chase";', "hết choáng về chase"],
+  [S, "g.successful++;", "g.successful += 0;", "thắp lại không tăng sức chứa"],
+  [S, "g.score += tu.score.per_lit_lantern_dawn + Math.floor(l.fuel / 60);", "g.score += tu.score.per_lit_lantern_dawn;", "thưởng bình minh bỏ floor(fuel)"],
+  [S, "<= R.drainChaseDist) leaveDrain", "<= 3) leaveDrain", "drain→chase ở 3 m thay vì 6 m"],
+  [S, "if (sh.drainTicks % 60 === 0)", "if (sh.drainTicks % 61 === 0)", "fuel_drain lệch nhịp"],
+  [S, "if (wasLow && best.fuel >= lowU) newlyLit.push(best);", "", "châm dầu qua 30 không đẩy Bóng Mực"],
+  [S, "if (!l || !l.lit || l.fuel >= lowU) leaveDrain(sh, \"wander\");", "if (!l || !l.lit) leaveDrain(sh, \"wander\");", "drain không thoát khi fuel ≥ 30", true], // tương đương: fuel chỉ tăng qua châm dầu/thắp lại, cả hai đều gọi startPush đã đổi drain→wander
+  [S, "(!l.lit || l.fuel < maxU) && dist2", "(!l.lit) && dist2", "không châm dầu được đèn đang sáng"],
+  [S, "if (tgt.lit && dist2(sh.x, sh.z, tgt.x, tgt.z) <= R.drainReach + 1e-9) {", "if (dist2(sh.x, sh.z, tgt.x, tgt.z) <= R.drainReach + 1e-9) {", "hút cả đèn tắt"],
+  [S, "best.relit++;", "", "relit_count không tăng"],
+  [S, "const pool = weak.length ? weak : g.lanterns.filter((l) => !l.lit);", "const pool = weak;", "không đi về đèn tắt"],
+  [S, "g.score += used * tu.score.per_mote;", "g.score += 0;", "châm dầu không có điểm"],
+  [S, "g.score += tu.score.per_relight;", "g.score += tu.score.per_lantern;", "thắp lại tính điểm thắp đầu"],
+  [S, "t.fuel = Math.min(maxU, Math.round((t.fuelSpec ?? tu.fuel_max) * 60));", "t.fuel = Math.min(maxU, Math.round((t.fuelSpec ?? 50) * 60));", "lit:true không fuel mặc định sai"],
 ];
 
 let survived = 0;

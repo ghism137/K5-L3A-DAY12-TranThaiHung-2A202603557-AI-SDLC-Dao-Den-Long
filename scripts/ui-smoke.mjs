@@ -56,7 +56,7 @@ const open = async (q) => {
   for (let i = 0; i < 50 && !(await ev("!!window.__ddl && document.visibilityState === 'visible'")); i++) await sleep(100);
 };
 const click = (id) => ev(`document.getElementById(${JSON.stringify(id)}).click()`);
-const state = () => ev(`(() => { const d = window.__ddl; const g = d.game; return { mode: d.mode, night: g?.night, st: g?.state, sim: g?.sim, ticks: g?.ticks, score: g?.score, total: d.run.total, x: g?.player.x, y: g?.player.y, z: g?.player.z, grounded: g?.player.grounded, dashCd: g?.player.dashCd, carried: g?.player.carried, screen: document.getElementById('screen').innerText.slice(0, 120).replace(/\\n/g, ' | '), hudShown: getComputedStyle(document.getElementById('hud')).display }; })()`);
+const state = () => ev(`(() => { const d = window.__ddl; const g = d.game; return { mode: d.mode, night: g?.night, st: g?.state, sim: g?.sim, ticks: g?.ticks, score: g?.score, total: d.run.total, x: g?.player.x, y: g?.player.y, z: g?.player.z, grounded: g?.player.grounded, dashCd: g?.player.dashCd, carried: g?.player.carried, screen: document.getElementById('screen').innerText.slice(0, 400).replace(/\\n/g, ' | '), hudShown: getComputedStyle(document.getElementById('hud')).display, fuel0: g ? g.lanterns[0].fuel / 60 : null, lit0: g ? g.lanterns[0].lit : null, ever0: g ? g.lanterns[0].everLit : null, cap: g ? g.capacity() : null }; })()`);
 
 const results = [];
 const check = (name, ok, info = "") => { results.push({ name, ok }); console.log(`${ok ? "ĐẠT   " : "HỎNG  "} ${name}${info ? "  (" + info + ")" : ""}`); };
@@ -139,22 +139,37 @@ try {
   s = await state();
   check("Chơi lại → giới thiệu lại Đêm 1", s.mode === "intro" && s.night === 1 && s.score === 0);
 
-  // 6. thắng Đêm 1 (4 đèn đã sáng, mang 10 đom đóm, nạp đèn cuối bằng phím)
-  await open("?autostart=1&seed=2&lit=4&carry=10");
-  await walkTo(-23.8, 7.7, 1.2);
-  { const w = await state(); console.log(`        bot dừng tại (${w.x.toFixed(1)}, ${w.z.toFixed(1)}) mang ${w.carried}, mode ${w.mode}, st ${w.st}, sim ${w.sim}`); }
-  await tap("e", 80);
+  // 6. [Ticket-03] thắng bằng cách sống tới bình minh với đủ đèn sáng (3/5 ở Đêm 1); không còn thắng sớm
+  await open("?autostart=1&seed=2&lit=5&time=3");
+  await sleep(1200);
+  s = await state();
+  check("Thắp đủ 5/5 đèn không kết thúc Đêm sớm (còn đang chơi)", s.mode === "playing" && s.st === "playing", `mode=${s.mode}`);
   s = await waitFor((v) => v.mode === "result", 6000);
-  check("Nạp đèn cuối → thắng Đêm 1 → màn kết quả 'Đêm kế tiếp'", s.mode === "result" && s.st === "won" && s.screen.includes("Đêm kế tiếp"), `score=${s.score} total=${s.total}`);
+  check("Sống tới bình minh với đủ đèn → thắng, màn kết quả 'Bình minh' + 'Đêm kế tiếp'", s.mode === "result" && s.st === "won" && s.screen.includes("Bình minh") && s.screen.includes("Đêm kế tiếp"), `score=${s.score} total=${s.total} ${s.screen}`);
   check("Điểm Đêm 1 > 0 và cộng vào tổng", s.score > 0 && s.total === s.score);
   await click("next");
   s = await state();
-  check("Đêm kế tiếp → giới thiệu Đêm 2 (Đảo Cau)", s.mode === "intro" && s.night === 2 && s.screen.includes("Đảo Cau"));
+  check("Đêm kế tiếp → giới thiệu Đêm 2 (Đảo Cau) kèm mục tiêu 4/6", s.mode === "intro" && s.night === 2 && s.screen.includes("Đảo Cau") && s.screen.includes("4 trong 6"));
+  await open("?autostart=1&seed=2&lit=2&time=3");
+  s = await waitFor((v) => v.mode === "result", 6000);
+  check("Hết giờ với 2/5 đèn (< 3/5) → thua, kết quả nói rõ thiếu đèn", s.mode === "result" && s.st === "lost" && s.screen.includes("2/5") && s.screen.includes("cần ≥ 3"), s.screen);
+
+  // 6b. châm dầu bằng phím thật: đi tới đèn yếu rồi bấm E
+  await open("?autostart=1&seed=2&lit=1&fuel=20&carry=10");
+  await walkTo(0, 25, 1.2);
+  const before = await state();
+  await tap("e", 80); await sleep(150);
+  s = await state();
+  check("Bấm E ở đèn yếu: châm dầu (fuel tăng mạnh, đom đóm giảm, +5 điểm mỗi đom đóm)", s.fuel0 > 90 && s.carried < before.carried && s.score === 5 * (10 - s.carried), `fuel ${before.fuel0?.toFixed(1)} → ${s.fuel0?.toFixed(1)}, mang ${before.carried} → ${s.carried}, điểm ${s.score}`);
+
+  // 6c. hết dầu thì tắt, nhớ ever_lit
+  await open("?autostart=1&seed=2&lit=1&fuel=0.05");
+  await sleep(400);
+  s = await state();
+  check("Đèn hết dầu tắt (lit=false) và nhớ ever_lit", s.lit0 === false && s.ever0 === true && s.fuel0 === 0, `lit=${s.lit0} ever=${s.ever0} fuel=${s.fuel0}`);
 
   // 7. thắng Đêm 3 → Bình Minh
-  await open("?autostart=3&seed=2&lit=6&carry=10");
-  await walkTo(-20, -35, 1.2);
-  await tap("e", 80);
+  await open("?autostart=3&seed=2&lit=5&time=3");
   s = await waitFor((v) => v.mode === "result", 6000);
   check("Thắng Đêm 3 → kết quả 'Đón Bình Minh'", s.mode === "result" && s.st === "won" && s.screen.includes("Đón Bình Minh"), s.screen);
   await click("next");
@@ -172,6 +187,23 @@ try {
   await sleep(200);
   const prompt = await ev(`document.getElementById('hud-prompt').innerText`);
   check("HUD: nhắc \"E — Nạp ánh sáng (x/10)\" khi đứng gần đèn", /E\s*—\s*Nạp ánh sáng \(0\/10\)/.test(prompt), prompt);
+
+  // 9. [Ticket-03] HUD sức chứa tăng dần và chế độ mù màu
+  await open("?autostart=1&seed=2&sl=3&carry=4");
+  const capInfo = JSON.parse(await ev(`JSON.stringify({ cells: document.querySelectorAll('#hud-motes i').length, cnt: document.querySelector('#hud-motes .cnt').innerText, lanterns: document.getElementById('hud-lanterns').innerText })`));
+  check("HUD: sức chứa 10 + 2×3 = 16 ô, hiển thị mang/sức chứa (4/16), 'cần ≥ 3'", capInfo.cells === 16 && capInfo.cnt === "4/16" && capInfo.lanterns.includes("cần ≥ 3"), JSON.stringify(capInfo));
+  await open("?seed=2");
+  await click("settings");
+  await ev(`(() => { const c = document.getElementById('s-cb'); c.checked = true; c.dispatchEvent(new Event('change')); })()`);
+  const cbSaved = JSON.parse((await ev(`localStorage.getItem('ddl.settings.v1')`)) ?? "{}");
+  check("Cài đặt 'Bảng màu dễ phân biệt' được lưu", cbSaved.colorblind === true, JSON.stringify(cbSaved));
+  await open("?autostart=1&seed=2&time=25");
+  const cb = JSON.parse(await ev(`JSON.stringify({ body: document.body.classList.contains('cb'), color: getComputedStyle(document.getElementById('hud-timer')).color, before: getComputedStyle(document.getElementById('hud-timer'), '::before').content, edge: window.__ddl.palette.shadeEdge, danger: window.__ddl.palette.danger })`));
+  check("Chế độ mù màu: viền Bóng Mực #00B3FF, cảnh báo UI trắng kèm ⚠ (còn nguyên sau khi tải lại)", cb.body && cb.edge === 0x00b3ff && cb.danger === 0xffffff && cb.color === "rgb(255, 255, 255)" && cb.before.includes("⚠"), JSON.stringify(cb));
+  await ev("localStorage.removeItem('ddl.settings.v1')");
+  await open("?autostart=1&seed=2&time=25");
+  const normal = JSON.parse(await ev(`JSON.stringify({ body: document.body.classList.contains('cb'), color: getComputedStyle(document.getElementById('hud-timer')).color, edge: window.__ddl.palette.shadeEdge })`));
+  check("Tắt mù màu: trở lại #7A3CFF và cảnh báo đỏ #FF5A5F", !normal.body && normal.edge === 0x7a3cff && normal.color === "rgb(255, 90, 95)", JSON.stringify(normal));
 
   check("Không có ngoại lệ JS trong suốt phiên", errors.length === 0, errors.slice(0, 2).join(" | "));
 } catch (e) {

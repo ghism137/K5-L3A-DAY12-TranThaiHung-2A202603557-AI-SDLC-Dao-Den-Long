@@ -1,0 +1,35 @@
+{
+  "random_motes": false,
+  "random_shades": false,
+  "random_drifters": false,
+  "wind_enabled": false,
+  "motes": [],
+  "shades": [
+    {
+      "pos": [
+        20,
+        0,
+        10
+      ],
+      "state": "wander"
+    }
+  ],
+  "drifters": [],
+  "charms": [],
+  "lanterns": [
+    {
+      "id": "L1",
+      "lit": true,
+      "fuel": 20
+    }
+  ],
+  "player": {
+    "pos": [
+      -20,
+      0,
+      -20
+    ],
+    "carried": 0,
+    "flames": 99
+  }
+}

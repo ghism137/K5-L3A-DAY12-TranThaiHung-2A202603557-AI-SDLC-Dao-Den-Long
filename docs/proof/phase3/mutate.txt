@@ -1,0 +1,48 @@
+đã bắt   bất tử không chặn hit
+đã bắt   điểm nạp đom đóm
+đã bắt   chờ hồi sinh 61 tick
+đã bắt   recoil 59 bước
+đã bắt   hồi chiêu lướt 91
+đã bắt   hồi bùa 2701
+đã bắt   Tỏa Sáng đo 2D
+đã bắt   bục bắn lại liên tục
+đã bắt   đẩy khỏi vùng an toàn lệch nhịp
+đã bắt   gió 2.2 m/s
+đã bắt   rơi làm tròn lên
+đã bắt   nhảy trên không
+đã bắt   lịch sinh Bóng Mực lệch
+đã bắt   không chuẩn hóa move
+đã bắt   tick sự kiện lệch 1
+đã bắt   công thức cam_yaw
+đã bắt   không chặn ở mép vùng an toàn
+tương đương  Gió Lạc cướp nhiều lần
+tương đương  bỏ hitDone
+đã bắt   vách đứng không chặn
+đã bắt   tháp không chặn
+đã bắt   hao dầu gấp đôi
+đã bắt   hút dầu 1/s thay vì 5/s
+đã bắt   vùng an toàn mất ở đúng 30
+đã bắt   đèn yếu tính cả đúng 30
+đã bắt   chi phí thắp lại bị đảo
+đã bắt   châm dầu làm tròn xuống
+đã bắt   ngưỡng thắng làm tròn xuống
+đã bắt   ngưỡng thắng nghiêm ngặt
+đã bắt   đèn hết dầu đúng 0 không tắt
+đã bắt   sức chứa tăng 1 thay vì 2
+đã bắt   stun Bóng drain không có thưởng
+đã bắt   hết choáng về chase
+đã bắt   thắp lại không tăng sức chứa
+đã bắt   thưởng bình minh bỏ floor(fuel)
+đã bắt   drain→chase ở 3 m thay vì 6 m
+đã bắt   fuel_drain lệch nhịp
+đã bắt   châm dầu qua 30 không đẩy Bóng Mực
+tương đương  drain không thoát khi fuel ≥ 30
+đã bắt   không châm dầu được đèn đang sáng
+đã bắt   hút cả đèn tắt
+đã bắt   relit_count không tăng
+đã bắt   không đi về đèn tắt
+đã bắt   châm dầu không có điểm
+đã bắt   thắp lại tính điểm thắp đầu
+đã bắt   lit:true không fuel mặc định sai
+
+46 đột biến, 0 sống sót (không tính mutant tương đương).

@@ -10,9 +10,12 @@ const contract = await (await fetch("/game.contract.json")).json();
 const tuning = contract.tuning;
 const params = new URLSearchParams(location.search);
 const settings = loadSettings();
+if (params.has("cb")) settings.colorblind = params.get("cb") === "1"; // chỉ để kiểm thử/chụp ảnh, không lưu
 const audio = createAudio(settings);
 const world = createWorld();
 document.body.prepend(world.renderer.domElement);
+world.setColorblind(settings.colorblind);
+document.body.classList.toggle("cb", settings.colorblind);
 
 // ---------- trạng thái chuỗi chơi ----------
 const run = { night: 1, total: 0 };
@@ -59,6 +62,8 @@ const ui = createUI({
   settings,
   onSettings: (s) => {
     audio.setVolume(s.volume);
+    world.setColorblind(s.colorblind);
+    document.body.classList.toggle("cb", s.colorblind);
     saveSettings(s);
   },
   handlers,
@@ -80,8 +85,10 @@ function loadNight() {
 function testScenario() {
   const sc = {};
   const n = Number(params.get("lit") ?? 0);
-  if (n) sc.lanterns = Array.from({ length: n }, (_, i) => ({ id: `L${i + 1}`, lit: true }));
-  if (params.has("carry")) sc.player = { carried: Number(params.get("carry")) };
+  if (n) sc.lanterns = Array.from({ length: n }, (_, i) => ({ id: `L${i + 1}`, lit: true, ...(params.has("fuel") ? { fuel: Number(params.get("fuel")) } : {}) }));
+  if (params.has("carry")) sc.player = { ...sc.player, carried: Number(params.get("carry")) };
+  if (params.has("sl")) sc.player = { ...sc.player, successful_lights: Number(params.get("sl")) };
+  if (params.has("drain")) sc.shades = [{ pos: [0, 0, 23.5], state: "drain", target_lantern_id: "L1" }]; // chỉ để chụp ảnh: Bóng Mực đang hút đèn L1
   if (params.has("time")) sc.time_left_s = Number(params.get("time"));
   return sc;
 }
@@ -160,6 +167,11 @@ function onEvent(e) {
     case "charm_picked": ui.flash(0xc8102e); return audio.sfx("charm");
     case "drifter_steal": return audio.sfx("steal");
     case "drifter_drop": return audio.sfx("pickup", 3);
+    case "refuel": return audio.sfx("refuel");
+    case "lantern_out":
+      ui.flash();
+      return audio.sfx("out");
+    case "fuel_drain": return audio.sfx("drain");
     case "game_over":
       audio.sfx(d.result === "won" ? "win" : "lose");
       endTimer = 1.4;
@@ -211,7 +223,8 @@ function frame(now) {
         const win = game.state === "won";
         if (win) run.total += game.score;
         ui.showHUD(false);
-        ui.result(win, { night: run.night, score: game.score, total: run.total, reason: game.state === "lost" && game.remaining <= 0 ? "dawn" : "no_flames" });
+        const lit = game.lanterns.filter((l) => l.lit).length;
+        ui.result(win, { night: run.night, score: game.score, total: run.total, reason: game.player.flames <= 0 ? "no_flames" : "dawn", lit, n: game.lanterns.length, need: Math.ceil(tuning.win_ratio * game.lanterns.length - 1e-9) });
       }
     }
     shake = Math.max(0, shake - dt * 1.5);
@@ -237,7 +250,7 @@ function frame(now) {
 }
 
 // móc kiểm thử (chỉ đọc) cho scripts/ui-smoke.mjs
-window.__ddl = { get game() { return game; }, get mode() { return mode; }, get run() { return run; }, get cam() { return cam; } };
+window.__ddl = { get game() { return game; }, get mode() { return mode; }, get run() { return run; }, get cam() { return cam; }, get palette() { return world.palette(); }, get settings() { return settings; } };
 
 // khởi động
 const auto = Number(params.get("autostart") ?? 0);

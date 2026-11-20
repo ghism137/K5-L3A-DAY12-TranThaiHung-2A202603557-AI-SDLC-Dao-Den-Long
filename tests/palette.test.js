@@ -19,3 +19,14 @@ test("ánh sáng môi trường = 0.15 + 0.55 × (đèn sáng / tổng đèn)", 
   assert.ok(Math.abs(ambientIntensity(3, 6) - 0.425) < 1e-12);
   assert.ok(Math.abs(ambientIntensity(2, 7) - (0.15 + (0.55 * 2) / 7)) < 1e-12);
 });
+// Chế độ mù màu (Ticket-03): đổi đúng hai màu, các màu khác giữ nguyên
+test("bảng màu dễ phân biệt: viền Bóng Mực #00B3FF, cảnh báo UI #FFFFFF, còn lại không đổi", async () => {
+  const { PAL_CB, palFor } = await import("../src/render/palette.js");
+  assert.equal(PAL_CB.shadeEdge, 0x00b3ff);
+  assert.equal(PAL_CB.danger, 0xffffff);
+  assert.equal(palFor(true), PAL_CB);
+  assert.equal(palFor(false), PAL);
+  for (const k of Object.keys(PAL)) if (k !== "shadeEdge" && k !== "danger") assert.equal(PAL_CB[k], PAL[k], k);
+  assert.equal(PAL.shadeEdge, 0x7a3cff);
+  assert.equal(PAL.danger, 0xff5a5f);
+});

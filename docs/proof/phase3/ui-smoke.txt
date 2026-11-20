@@ -1,0 +1,35 @@
+ĐẠT    Menu hiện đầu tiên  (Đảo Đèn Lồng |  | Mây, người giữ đèn nhỏ tuổi, thắp lại ba hòn đảo giữa biển mây. |  | Bắt đầu | Cài đặt |  | WASD/mũi tên đi · Space nhảy · Shift lướt · E nạp đèn · Q tỏa sáng · Esc/P tạm dừng · kéo chuột xoay camera)
+ĐẠT    Bắt đầu → màn giới thiệu Đêm 1 có lời Ông Đăng
+ĐẠT    Vào chơi, HUD hiện
+        tốc độ mô phỏng: 62 tick/giây (cần 60) · ANGLE (Intel, Intel(R) UHD Graphics (0x00009A78) Direct3D11 vs_5_0 ps_5_0, D3D11)
+ĐẠT    Phím D di chuyển Mây (screen-right = −X)  (Δx=-4.20)
+ĐẠT    Space nhảy (rời mặt đất)
+ĐẠT    Shift lướt (hồi chiêu lướt chạy)
+ĐẠT    Esc → tạm dừng, có menu Tiếp tục/Chơi lại/Cài đặt/Về menu  (Tạm dừng | Tiếp tục | Chơi lại Đêm | Cài đặt | Về menu)
+ĐẠT    Tạm dừng: logic đứng yên hoàn toàn
+ĐẠT    Cài đặt âm lượng/độ nhạy được lưu (localStorage)  ({"volume":0.3,"sensitivity":2,"colorblind":false})
+ĐẠT    Cài đặt còn nguyên sau khi mở lại game  (volume=30)
+ĐẠT    Tiếp tục: logic chạy lại
+ĐẠT    Chơi lại Đêm từ menu tạm dừng
+ĐẠT    Hết giờ → thua, màn kết quả có 'Chơi lại Đêm này'  (Trời đã sáng... |  | Trời sáng mà chỉ còn 0/5 đèn sáng, cần ≥ 3. |  | Điểm Đêm 1: 0 |  | Chơi lại Đêm này | Về menu)
+ĐẠT    Chơi lại → giới thiệu lại Đêm 1
+ĐẠT    Thắp đủ 5/5 đèn không kết thúc Đêm sớm (còn đang chơi)  (mode=playing)
+ĐẠT    Sống tới bình minh với đủ đèn → thắng, màn kết quả 'Bình minh' + 'Đêm kế tiếp'  (score=885 total=885 Bình minh! Đảo vẫn sáng |  | Giữ được 5/5 đèn tới bình minh (cần ≥ 3). |  | Điểm Đêm 1: 885 · Tổng: 885 |  | Đêm kế tiếp | Về menu)
+ĐẠT    Điểm Đêm 1 > 0 và cộng vào tổng
+ĐẠT    Đêm kế tiếp → giới thiệu Đêm 2 (Đảo Cau) kèm mục tiêu 4/6
+ĐẠT    Hết giờ với 2/5 đèn (< 3/5) → thua, kết quả nói rõ thiếu đèn  (Trời đã sáng... |  | Trời sáng mà chỉ còn 2/5 đèn sáng, cần ≥ 3. |  | Điểm Đêm 1: 0 |  | Chơi lại Đêm này | Về menu)
+ĐẠT    Bấm E ở đèn yếu: châm dầu (fuel tăng mạnh, đom đóm giảm, +5 điểm mỗi đom đóm)  (fuel 14.3 → 99.8, mang 10 → 1, điểm 45)
+ĐẠT    Đèn hết dầu tắt (lit=false) và nhớ ever_lit  (lit=false ever=true fuel=0)
+ĐẠT    Thắng Đêm 3 → kết quả 'Đón Bình Minh'  (Bình minh! Đảo vẫn sáng |  | Giữ được 5/7 đèn tới bình minh (cần ≥ 5). |  | Điểm Đêm 3: 885 · Tổng: 885 |  | Đón Bình Minh | Về menu)
+ĐẠT    Màn Bình Minh hiện tổng điểm  (Bình Minh |  | Ông Đăng: “Ba hòn đảo đã sáng đèn. Cảm ơn cháu, người giữ đèn nhỏ tuổi.” |  | Tổng điểm: 885 |  | Về menu)
+ĐẠT    HUD: đồng hồ mm:ss đổi sang đỏ khi ≤ 30 s  (0:23 rgb(255, 90, 95))
+ĐẠT    HUD: 3 Ngọn Lửa, thanh đom đóm 10 ô, biểu tượng hồi chiêu Lướt/Tỏa Sáng, đèn k/n, điểm  ({"timerClass":"danger blink","timerColor":"rgb(255, 90, 95)","cells":10,"flames":3,"dash":true,"pulse":true,"lanterns":"🏮 0/5 cần ≥ 3","score":"⭐ 0","timer":"0:23"})
+ĐẠT    HUD: mũi tên chỉ tới đèn chưa sáng khi nó ngoài màn hình
+ĐẠT    HUD: nhắc "E — Nạp ánh sáng (x/10)" khi đứng gần đèn  (E — Nạp ánh sáng (0/10))
+ĐẠT    HUD: sức chứa 10 + 2×3 = 16 ô, hiển thị mang/sức chứa (4/16), 'cần ≥ 3'  ({"cells":16,"cnt":"4/16","lanterns":"🏮 0/5 cần ≥ 3"})
+ĐẠT    Cài đặt 'Bảng màu dễ phân biệt' được lưu  ({"volume":0.3,"sensitivity":2,"colorblind":true})
+ĐẠT    Chế độ mù màu: viền Bóng Mực #00B3FF, cảnh báo UI trắng kèm ⚠ (còn nguyên sau khi tải lại)  ({"body":true,"color":"rgb(255, 255, 255)","before":"\"⚠ \"","edge":46079,"danger":16777215})
+ĐẠT    Tắt mù màu: trở lại #7A3CFF và cảnh báo đỏ #FF5A5F  ({"body":false,"color":"rgb(255, 90, 95)","edge":8011007})
+ĐẠT    Không có ngoại lệ JS trong suốt phiên
+
+32/32 đạt.
