@@ -1,6 +1,6 @@
 # Đảo Đèn Lồng
 
-> **Video demo:** _chưa quay (người làm bài sẽ quay ở Checkpoint 5). Link sẽ đặt ở đây._
+> **Video demo (4:15, .mp4):** [dao-den-long-demo.mp4](https://github.com/ghism137/K5-L3A-DAY12-TranThaiHung-2A202603557-AI-SDLC-Dao-Den-Long/releases/download/v1.0.0/dao-den-long-demo.mp4) (đính kèm trong [Release v1.0.0](https://github.com/ghism137/K5-L3A-DAY12-TranThaiHung-2A202603557-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0); 283 MB nên không đặt trong repo)
 > Bài cá nhân Day 12 AI SDLC · MSSV 2A202603557 · Trần Thái Hưng · Tài liệu gốc của lab: [docs/LAB-README.md](docs/LAB-README.md)
 
 Game 3D góc nhìn thứ ba. Bạn là **Mây**, người giữ đèn nhỏ tuổi (nón lá, khăn đỏ, đèn lồng nhỏ). Sương đen đã nuốt ánh sáng của ba hòn đảo. Đèn lồng thắp rồi vẫn có thể **cạn dầu và tắt**: nhiệm vụ của bạn là **giữ đảo sáng tới bình minh**, gom **đom đóm** để thắp và châm dầu, né **Bóng Mực** (chúng hút dầu đèn yếu) và **Gió Lạc**. Qua 3 Đêm: **Đảo Bến → Đảo Cau → Đảo Chuông**, rồi lưu điểm lên **bảng xếp hạng**.

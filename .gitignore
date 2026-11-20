@@ -13,3 +13,6 @@ coverage/
 
 # du lieu bang xep hang cuc bo
 data/
+
+# video demo nặng: chỉ đính kèm vào GitHub Release, không commit
+demo-local/
